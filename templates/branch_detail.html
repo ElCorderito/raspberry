@@ -293,132 +293,98 @@
   
   <script>
     document.addEventListener('DOMContentLoaded', function() {
-      // -------------------------------------------------------
-      // CLIMA Y PRONÓSTICO VERTICAL (igual a tu versión actual)
-      // -------------------------------------------------------
-      const weatherImageMap = {
-        0: "{{ url_for('static', filename='images/soleado.png') }}",
-        1: "{{ url_for('static', filename='images/mayormente_despejado.png') }}",
-        2: "{{ url_for('static', filename='images/parcialmente_nublado.png') }}",
-        3: "{{ url_for('static', filename='images/nublado.png') }}",
-        45: "{{ url_for('static', filename='images/niebla.png') }}",
-        48: "{{ url_for('static', filename='images/niebla.png') }}",
-        51: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
-        53: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
-        55: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
-        61: "{{ url_for('static', filename='images/lluvia.png') }}",
-        63: "{{ url_for('static', filename='images/lluvia.png') }}",
-        65: "{{ url_for('static', filename='images/lluvia.png') }}",
-        80: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
-        81: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
-        82: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
-        95: "{{ url_for('static', filename='images/tormenta.png') }}",
-        96: "{{ url_for('static', filename='images/tormenta.png') }}",
-        99: "{{ url_for('static', filename='images/tormenta.png') }}"
-      };
-      
-      function updateCurrentWeather(hourlyData) {
+  
+      // =======================================================
+      // FUNCIONES PARA MOSTRAR DATOS DEL CLIMA PREPROCESADOS
+      // =======================================================
+  
+      // Renderiza el clima actual con los datos ya formateados
+      function renderCurrentWeather(current) {
         const container = document.getElementById('current-weather-container');
-        container.innerHTML = '';
-        const now = new Date();
-        let closestRecord = null;
-        let minDiff = Infinity;
-        hourlyData.forEach(h => {
-          let recordTime = new Date(h.time);
-          let diff = Math.abs(now - recordTime);
-          if (diff < minDiff) {
-            minDiff = diff;
-            closestRecord = h;
-          }
-        });
-        if (closestRecord) {
-          const tempEl = document.createElement('div');
-          tempEl.classList.add('current-temp');
-          tempEl.textContent = `${closestRecord.temperature_2m.toFixed(1)}°C`;
-          
-          const codeEl = document.createElement('div');
-          if (weatherImageMap[closestRecord.weather_code]) {
-            const img = document.createElement('img');
-            img.src = weatherImageMap[closestRecord.weather_code];
-            codeEl.appendChild(img);
-          } else {
-            codeEl.textContent = `Code: ${closestRecord.weather_code}`;
-          }
-          container.appendChild(tempEl);
-          container.appendChild(codeEl);
-        } else {
+        container.innerHTML = "";
+        if (!current || !current.temperature_str) {
           container.textContent = "Sin datos";
+          return;
         }
+        const tempEl = document.createElement('div');
+        tempEl.classList.add('current-temp');
+        tempEl.textContent = current.temperature_str;
+  
+        const codeEl = document.createElement('div');
+        const img = document.createElement('img');
+        img.src = current.weather_icon_url;
+        codeEl.appendChild(img);
+  
+        container.appendChild(tempEl);
+        container.appendChild(codeEl);
       }
-      
-      function updateMarquee(dailyData) {
+  
+      // Renderiza el forecast diario usando los datos formateados
+      function renderDailyForecast(dailyForecast) {
         const marqueeTrack = document.querySelector('.marquee-text-track');
         marqueeTrack.innerHTML = "";
-        dailyData.forEach(day => {
+  
+        dailyForecast.forEach(day => {
           const dayBox = document.createElement('div');
           dayBox.classList.add('day-box');
-          
+  
           const dateDiv = document.createElement('div');
           dateDiv.classList.add('day-date');
-          let dateObj = new Date(day.date);
-          const opciones = { day: 'numeric', month: 'long' };
-          dateDiv.textContent = dateObj.toLocaleDateString('es-ES', opciones);
+          dateDiv.textContent = day.formatted_date;
           dayBox.appendChild(dateDiv);
-          
+  
           const weatherDiv = document.createElement('div');
-          if (weatherImageMap[day.weather_code]) {
-            let img = document.createElement('img');
-            img.src = weatherImageMap[day.weather_code];
-            weatherDiv.appendChild(img);
-          } else {
-            weatherDiv.textContent = day.weather_code;
-          }
+          const img = document.createElement('img');
+          img.src = day.weather_icon_url;
+          weatherDiv.appendChild(img);
           dayBox.appendChild(weatherDiv);
-          
+  
           const maxMinDiv = document.createElement('div');
           maxMinDiv.innerHTML = `
-            <span class="max-temp">${parseFloat(day.temperature_2m_max).toFixed(1)}°C</span> /
-            <span class="min-temp">${parseFloat(day.temperature_2m_min).toFixed(1)}°C</span>
+            <span class="max-temp">${day.max_temp_str}</span> /
+            <span class="min-temp">${day.min_temp_str}</span>
           `;
           dayBox.appendChild(maxMinDiv);
-          
+  
           marqueeTrack.appendChild(dayBox);
         });
-        // duplicar para el efecto "loop"
+        // Duplicamos el contenido para lograr el efecto "loop"
         marqueeTrack.innerHTML += marqueeTrack.innerHTML;
       }
-      
-      // Datos inyectados desde Flask
-      const dailyForecast = JSON.parse('{{ daily_forecast_json|tojson|safe }}');
-      const hourlyForecast = JSON.parse('{{ hourly_forecast_json|tojson|safe }}');
-      updateMarquee(dailyForecast);
-      updateCurrentWeather(hourlyForecast);
-
-      // Botón de actualizar clima manual
-      const btnUpdateWeather = document.getElementById('btn-update-weather');
-      btnUpdateWeather.addEventListener('click', function() {
+  
+      // Actualiza los datos del clima (llama al endpoint procesado en el backend)
+      function updateWeatherData() {
         fetch("{{ url_for('get_weather_data', branch_id=branch.id) }}")
           .then(response => {
-            if (!response.ok) throw new Error('Error al actualizar el clima');
+            if (!response.ok) {
+              throw new Error('Error al actualizar el clima');
+            }
             return response.json();
           })
           .then(data => {
-            updateMarquee(data.daily);
-            updateCurrentWeather(data.hourly);
+            renderCurrentWeather(data.current_weather);
+            renderDailyForecast(data.daily_forecast);
           })
           .catch(error => console.error(error));
-      });
-      
-      // -------------------------------------------------------
+      }
+  
+      // Llamada inicial para pintar los datos del clima
+      updateWeatherData();
+  
+      // Botón para actualizar manualmente el clima
+      const btnUpdateWeather = document.getElementById('btn-update-weather');
+      btnUpdateWeather.addEventListener('click', updateWeatherData);
+  
+      // =======================================================
       // MARQUEE HORIZONTAL DEL TIPO DE CAMBIO
-      // -------------------------------------------------------
+      // =======================================================
       const exchangeMarquee = document.getElementById('exchange-marquee');
       const content = exchangeMarquee.innerHTML.trim().replace(/\$\s+/g, '$');
       exchangeMarquee.innerHTML =
         `<span class="copy">${content}</span>` +
         `<span class="separator"></span>` +
         `<span class="copy">${content}</span>`;
-      
+  
       // Calcula la distancia de la primera copia + separador
       setTimeout(() => {
         const firstCopy = exchangeMarquee.querySelector('.copy');
@@ -426,8 +392,8 @@
         const marqueeDistance = firstCopy.offsetWidth + separator.offsetWidth;
         exchangeMarquee.style.setProperty('--marquee-distance', marqueeDistance + 'px');
       }, 0);
-      
-      // Polling para el tipo de cambio cada 5s
+  
+      // Polling para actualizar el tipo de cambio cada 5s
       function pollExchangeRate() {
         fetch("{{ url_for('current_exchange_rate', branch_id=branch.id) }}")
           .then(response => {
@@ -446,50 +412,47 @@
       }
       pollExchangeRate();
       setInterval(pollExchangeRate, 5000);
-
-      // -------------------------------------------------------
+  
+      // =======================================================
       // NOTIFICACIONES: "Pase a caja X" + sonido beepX.mp3
-      // -------------------------------------------------------
+      // =======================================================
       const popup = document.getElementById('notification-popup');
       const popupMessage = document.getElementById('notification-message');
       const audio = document.getElementById('notification-sound');
-
+  
       function checkNotification() {
+        // Si ya se muestra una notificación, no continuar
+        if (popup.style.display === "flex") {
+          return;
+        }
         fetch("{{ url_for('current_notification', branch_id=branch.id) }}")
           .then(r => r.json())
           .then(data => {
             const message = data.message;
             const soundId = data.sound_id;
-
             if (message) {
-              // Mostrar popup
               popupMessage.textContent = message;
               popup.style.display = "flex";
-
-              // Definir ruta del sonido beepX.mp3
-              // Asegúrate de tener beep1.mp3 ... beep10.mp3 en static/sounds/
+  
               const audioUrl = "{{ url_for('static', filename='sounds') }}" + "/beep" + soundId + ".mp3";
               audio.src = audioUrl;
-
-              // Reproducir sonido
               audio.currentTime = 0;
               audio.play().catch(err => console.error("No se pudo reproducir:", err));
-
-              // Después de 4s, se oculta y se limpia la notificación en el servidor
+  
+              // Ocultar el popup después de 4s y limpiar la notificación del servidor
               setTimeout(() => {
                 popup.style.display = "none";
-                fetch("{{ url_for('clear_notification', branch_id=branch.id) }}", {
-                  method: 'POST'
-                });
+                fetch("{{ url_for('clear_notification', branch_id=branch.id) }}", { method: 'POST' });
               }, 4000);
             }
           })
           .catch(err => console.error("Error en checkNotification:", err));
       }
-
-      // Polling cada 5s para ver si hay notificación nueva
-      setInterval(checkNotification, 5000);
+  
+      // Polling para notificaciones (cada 1s)
+      setInterval(checkNotification, 1000);
     });
   </script>
+  
 </body>
 </html>

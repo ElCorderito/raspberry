@@ -9,6 +9,28 @@ import pytz
 
 app = Flask(__name__)
 
+# Este dict se puede poner globalmente o dentro de la función
+WEATHER_ICON_MAP = {
+    0: "images/soleado.png",
+    1: "images/mayormente_despejado.png",
+    2: "images/parcialmente_nublado.png",
+    3: "images/nublado.png",
+    45: "images/niebla.png",
+    48: "images/niebla.png",
+    51: "images/llovizna_ligera.png",
+    53: "images/llovizna_ligera.png",
+    55: "images/llovizna_ligera.png",
+    61: "images/lluvia.png",
+    63: "images/lluvia.png",
+    65: "images/lluvia.png",
+    80: "images/llovizna_ligera.png",
+    81: "images/llovizna_ligera.png",
+    82: "images/llovizna_ligera.png",
+    95: "images/tormenta.png",
+    96: "images/tormenta.png",
+    99: "images/tormenta.png"
+}
+
 # Carpeta donde guardas tu data.json
 DATA_FILE = os.path.join('data', 'data.json')
 
@@ -154,13 +176,13 @@ def get_weather_data(branch_id):
     if not branch:
         return jsonify({"error": "Sucursal no encontrada"}), 404
 
-    # (Se podría checar si hay datos frescos, etc.)
+    # Llamamos a la API de Open-Meteo, tal como tenías
     cache_session = requests_cache.CachedSession('.cache', expire_after=3600)
     url = "https://api.open-meteo.com/v1/forecast"
     tz_la = pytz.timezone("America/Los_Angeles")
     today_la = datetime.now(tz_la).date()
 
-    # Hourly
+    # --- Obtener hourly data ---
     params_hourly = {
         "latitude": 33.2553,
         "longitude": -116.5664,
@@ -173,7 +195,6 @@ def get_weather_data(branch_id):
     if not resp_hourly.ok:
         return jsonify({"error": "Fallo al obtener datos hourly"}), 500
     data_hourly = resp_hourly.json().get("hourly", {})
-
     time_data = data_hourly.get("time", [])
     temp_data = data_hourly.get("temperature_2m", [])
     code_data = data_hourly.get("weather_code", [])
@@ -189,7 +210,36 @@ def get_weather_data(branch_id):
         }
         hourly_records.append(record)
 
-    # Daily
+    # --- Encontrar la hora más cercana a "ahora" ---
+    now = datetime.now(tz_la)
+    closest_record = None
+    min_diff = timedelta.max
+    for h in hourly_records:
+        dt = pd.to_datetime(h["time"]).tz_localize(None)
+        diff = abs(now.replace(tzinfo=None) - dt)
+        if diff < min_diff:
+            min_diff = diff
+            closest_record = h
+
+    current_weather = {}
+    if closest_record:
+        # Armamos algo más “listo para mostrar”
+        temp_float = closest_record["temperature_2m"]
+        code = closest_record["weather_code"]
+        current_weather = {
+            "temperature_str": f"{temp_float:.1f}°C",
+            "weather_code": code,
+            "weather_icon_url": url_for('static', filename=WEATHER_ICON_MAP.get(code, 'images/default.png')),
+        }
+    else:
+        # Por si no hay datos
+        current_weather = {
+            "temperature_str": "N/D",
+            "weather_code": None,
+            "weather_icon_url": url_for('static', filename='images/default.png')
+        }
+
+    # --- Obtener daily data ---
     params_daily = {
         "latitude": 33.2553,
         "longitude": -116.5664,
@@ -202,31 +252,46 @@ def get_weather_data(branch_id):
     if not resp_daily.ok:
         return jsonify({"error": "Fallo al obtener datos daily"}), 500
     data_daily = resp_daily.json().get("daily", {})
-
     time_daily = data_daily.get("time", [])
     code_daily = data_daily.get("weather_code", [])
     tmax_daily = data_daily.get("temperature_2m_max", [])
     tmin_daily = data_daily.get("temperature_2m_min", [])
 
     daily_records = []
+    # Para formatear fechas en español “día de mes”:
+    # O usas locale.setlocale o un mini diccionario
+    month_map = {
+        1: "enero", 2: "febrero", 3: "marzo", 4: "abril", 5: "mayo", 6: "junio",
+        7: "julio", 8: "agosto", 9: "septiembre", 10: "octubre", 11: "noviembre", 12: "diciembre"
+    }
     for i, d_str in enumerate(time_daily):
         dt_local = pd.to_datetime(d_str)
-        record = {
-            "date": dt_local.strftime("%Y-%m-%d"),
-            "weather_code": int(code_daily[i]) if i < len(code_daily) else None,
-            "temperature_2m_max": float(tmax_daily[i]) if i < len(tmax_daily) else None,
-            "temperature_2m_min": float(tmin_daily[i]) if i < len(tmin_daily) else None,
-        }
-        daily_records.append(record)
+        code = code_daily[i] if i < len(code_daily) else None
+        max_temp = tmax_daily[i] if i < len(tmax_daily) else None
+        min_temp = tmin_daily[i] if i < len(tmin_daily) else None
+        
+        day = dt_local.day
+        month = dt_local.month
+        formatted_date = f"{day} de {month_map.get(month, '???')}"
+
+        daily_records.append({
+            "formatted_date": formatted_date,
+            "weather_code": code,
+            "weather_icon_url": url_for('static', filename=WEATHER_ICON_MAP.get(code, 'images/default.png')),
+            "max_temp_str": f"{max_temp:.1f}°C" if max_temp is not None else "N/D",
+            "min_temp_str": f"{min_temp:.1f}°C" if min_temp is not None else "N/D",
+        })
 
     final_data = {
         "last_updated": datetime.now().isoformat(),
-        "hourly": hourly_records,
-        "daily": daily_records
+        "current_weather": current_weather,
+        "daily_forecast": daily_records
     }
 
+    # Guardamos en el branch y persistimos
     branch["weather_data"] = final_data
     save_data(content)
+
     return jsonify(final_data)
 
 # ------------------------------------------------------------------------
