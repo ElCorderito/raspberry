@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Detalle de Sucursal</title>
+  <style>
+    /* Estilos generales */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background-color: #f5f5f5;
+    }
+    .fullscreen-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+    /* VIDEO: 80% de ancho a la izquierda, 80% de alto */
+    .video-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 80%;
+      height: 80%;
+      background: #ddd;
+    }
+    .video-container iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .btn-regresar {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background-color: #1abc9c;
+      color: #fff;
+      padding: 10px 20px;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    .btn-regresar:hover {
+      background-color: #16a085;
+    }
+    
+    /* Contenedor derecho: Clima */
+    .weather-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 20%;
+      height: 100%;
+      background: linear-gradient(to bottom, #005f73, #0a9396);
+      overflow: hidden;
+    }
+    #current-weather-container {
+      width: 100%;
+      height: 20%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 15px;
+      font-family: 'Roboto', sans-serif;
+    }
+    #current-weather-container img {
+      width: 70%;
+      max-width: 80px;
+      display: block;
+      margin: 10px auto 0;
+    }
+    .current-temp {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 0.3rem;
+      padding: 0.2rem 0.5rem;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
+    }
+    .marquee-wrapper {
+      position: absolute;
+      top: 20%;
+      left: 0;
+      width: 100%;
+      height: 80%;
+      overflow: hidden;
+    }
+    .marquee-text-track {
+      position: absolute;
+      left: 0;
+      will-change: transform;
+      transform: translate3d(0, 0, 0);
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+      width: 100%;
+      align-items: center;
+      animation: marquee-vertical 40s linear infinite;
+    }
+    @keyframes marquee-vertical {
+      0% {
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        transform: translate3d(0, -50%, 0);
+      }
+    }
+    .day-box {
+      background-color: rgba(255, 255, 255, 0.25);
+      border: 1px solid #fff;
+      border-radius: 8px;
+      padding: 1rem 2rem;
+      color: #fff;
+      font-size: 1.1rem;
+      text-align: center;
+      width: 80%;
+      max-width: 200px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .day-box img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+    .day-date {
+      font-weight: bold;
+      margin-bottom: 0.3rem;
+    }
+    .max-temp {
+      color: red;
+    }
+    .min-temp {
+      color: blue;
+    }
+    
+    .btn-update-weather {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 8px 12px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      background-color: #1abc9c;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+    .btn-update-weather:hover {
+      background-color: #16a085;
+    }
+    
+    /* Marquee Horizontal (Tipo de Cambio) */
+    .exchange-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 80%;
+      height: 20%;
+      background: linear-gradient(to right, #2C5364, #203A43, #0F2027);
+      color: #fff;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      box-sizing: border-box;
+    }
+    .exchange-marquee {
+      display: inline-flex;
+      white-space: nowrap;
+      will-change: transform;
+      animation: marquee-horizontal 7s linear infinite;
+      font-size: 6rem;
+      font-weight: bold;
+    }
+    @keyframes marquee-horizontal {
+      0% {
+        transform: translate3d(0, 0, 0);
+      }
+      100% {
+        transform: translate3d(calc(-1 * var(--marquee-distance)), 0, 0);
+      }
+    }
+    .separator {
+      display: inline-block;
+      width: 2rem;
+    }
+    .buy-text,
+    .buy-value {
+      color: #28a745; /* Verde */
+    }
+    .sell-text,
+    .sell-value {
+      color: #dc3545; /* Rojo */
+    }
+
+    /* POPUP DE NOTIFICACIÓN */
+    #notification-popup {
+      display: none;
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      color: #fff;
+      font-size: 4rem;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 2rem;
+      z-index: 999999;
+  }
+  
+  </style>
+</head>
+<body>
+  <div class="fullscreen-container">
+    <!-- Botón "Regresar" -->
+    <a href="{{ url_for('list_branches') }}" class="btn-regresar">Regresar</a>
+    
+    <!-- VIDEO -->
+    <div class="video-container">
+      <iframe src="https://www.youtube.com/embed/91BUM3WhCfo?autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&cc_load_policy=0&iv_load_policy=3&rel=0&playlist=91BUM3WhCfo" allow="autoplay; encrypted-media"></iframe>
+    </div>
+    
+    <!-- Contenedor derecho: Clima -->
+    <div class="weather-container">
+      <div id="current-weather-container"></div>
+      <div class="marquee-wrapper">
+        <div class="marquee-text-track"></div>
+      </div>
+    </div>
+    
+    <!-- Contenedor inferior: Tipo de Cambio -->
+    <div class="exchange-container">
+      <div class="exchange-marquee" id="exchange-marquee">
+        <span class="buy-text">Compra:</span>
+        <span class="buy-value">
+          {% if branch.exchange_rate.buy is not none %}
+            {{ "%.4f"|format(branch.exchange_rate.buy) }}
+          {% else %}
+            No definido
+          {% endif %}
+        </span>
+
+        <span class="separator" style="margin-left:2rem;"></span>
+
+        <span class="sell-text">Venta:</span>
+        <span class="sell-value">
+          {% if branch.exchange_rate.sell is not none %}
+            {{ "%.4f"|format(branch.exchange_rate.sell) }}
+          {% else %}
+            No definido
+          {% endif %}
+        </span>
+      </div>
+    </div>
+
+    <!-- POPUP DE NOTIFICACIÓN (cubre toda la pantalla cuando se muestra) -->
+    <div id="notification-popup">
+      <span id="notification-message"></span>
+    </div>
+    
+    <!-- Botón para actualizar el clima manualmente (opcional) -->
+    <button id="btn-update-weather" class="btn-update-weather">Actualizar Clima</button>
+    
+    <!-- AUDIO (un solo elemento) para reproducir beepX.mp3 dinámicamente -->
+    <audio id="notification-sound"></audio>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // -------------------------------------------------------
+      // CLIMA Y PRONÓSTICO VERTICAL (igual a tu versión actual)
+      // -------------------------------------------------------
+      const weatherImageMap = {
+        0: "{{ url_for('static', filename='images/soleado.png') }}",
+        1: "{{ url_for('static', filename='images/mayormente_despejado.png') }}",
+        2: "{{ url_for('static', filename='images/parcialmente_nublado.png') }}",
+        3: "{{ url_for('static', filename='images/nublado.png') }}",
+        45: "{{ url_for('static', filename='images/niebla.png') }}",
+        48: "{{ url_for('static', filename='images/niebla.png') }}",
+        51: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
+        53: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
+        55: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
+        61: "{{ url_for('static', filename='images/lluvia.png') }}",
+        63: "{{ url_for('static', filename='images/lluvia.png') }}",
+        65: "{{ url_for('static', filename='images/lluvia.png') }}",
+        80: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
+        81: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
+        82: "{{ url_for('static', filename='images/llovizna_ligera.png') }}",
+        95: "{{ url_for('static', filename='images/tormenta.png') }}",
+        96: "{{ url_for('static', filename='images/tormenta.png') }}",
+        99: "{{ url_for('static', filename='images/tormenta.png') }}"
+      };
+      
+      function updateCurrentWeather(hourlyData) {
+        const container = document.getElementById('current-weather-container');
+        container.innerHTML = '';
+        const now = new Date();
+        let closestRecord = null;
+        let minDiff = Infinity;
+        hourlyData.forEach(h => {
+          let recordTime = new Date(h.time);
+          let diff = Math.abs(now - recordTime);
+          if (diff < minDiff) {
+            minDiff = diff;
+            closestRecord = h;
+          }
+        });
+        if (closestRecord) {
+          const tempEl = document.createElement('div');
+          tempEl.classList.add('current-temp');
+          tempEl.textContent = `${closestRecord.temperature_2m.toFixed(1)}°C`;
+          
+          const codeEl = document.createElement('div');
+          if (weatherImageMap[closestRecord.weather_code]) {
+            const img = document.createElement('img');
+            img.src = weatherImageMap[closestRecord.weather_code];
+            codeEl.appendChild(img);
+          } else {
+            codeEl.textContent = `Code: ${closestRecord.weather_code}`;
+          }
+          container.appendChild(tempEl);
+          container.appendChild(codeEl);
+        } else {
+          container.textContent = "Sin datos";
+        }
+      }
+      
+      function updateMarquee(dailyData) {
+        const marqueeTrack = document.querySelector('.marquee-text-track');
+        marqueeTrack.innerHTML = "";
+        dailyData.forEach(day => {
+          const dayBox = document.createElement('div');
+          dayBox.classList.add('day-box');
+          
+          const dateDiv = document.createElement('div');
+          dateDiv.classList.add('day-date');
+          let dateObj = new Date(day.date);
+          const opciones = { day: 'numeric', month: 'long' };
+          dateDiv.textContent = dateObj.toLocaleDateString('es-ES', opciones);
+          dayBox.appendChild(dateDiv);
+          
+          const weatherDiv = document.createElement('div');
+          if (weatherImageMap[day.weather_code]) {
+            let img = document.createElement('img');
+            img.src = weatherImageMap[day.weather_code];
+            weatherDiv.appendChild(img);
+          } else {
+            weatherDiv.textContent = day.weather_code;
+          }
+          dayBox.appendChild(weatherDiv);
+          
+          const maxMinDiv = document.createElement('div');
+          maxMinDiv.innerHTML = `
+            <span class="max-temp">${parseFloat(day.temperature_2m_max).toFixed(1)}°C</span> /
+            <span class="min-temp">${parseFloat(day.temperature_2m_min).toFixed(1)}°C</span>
+          `;
+          dayBox.appendChild(maxMinDiv);
+          
+          marqueeTrack.appendChild(dayBox);
+        });
+        // duplicar para el efecto "loop"
+        marqueeTrack.innerHTML += marqueeTrack.innerHTML;
+      }
+      
+      // Datos inyectados desde Flask
+      const dailyForecast = JSON.parse('{{ daily_forecast_json|tojson|safe }}');
+      const hourlyForecast = JSON.parse('{{ hourly_forecast_json|tojson|safe }}');
+      updateMarquee(dailyForecast);
+      updateCurrentWeather(hourlyForecast);
+
+      // Botón de actualizar clima manual
+      const btnUpdateWeather = document.getElementById('btn-update-weather');
+      btnUpdateWeather.addEventListener('click', function() {
+        fetch("{{ url_for('get_weather_data', branch_id=branch.id) }}")
+          .then(response => {
+            if (!response.ok) throw new Error('Error al actualizar el clima');
+            return response.json();
+          })
+          .then(data => {
+            updateMarquee(data.daily);
+            updateCurrentWeather(data.hourly);
+          })
+          .catch(error => console.error(error));
+      });
+      
+      // -------------------------------------------------------
+      // MARQUEE HORIZONTAL DEL TIPO DE CAMBIO
+      // -------------------------------------------------------
+      const exchangeMarquee = document.getElementById('exchange-marquee');
+      const content = exchangeMarquee.innerHTML.trim().replace(/\$\s+/g, '$');
+      exchangeMarquee.innerHTML =
+        `<span class="copy">${content}</span>` +
+        `<span class="separator"></span>` +
+        `<span class="copy">${content}</span>`;
+      
+      // Calcula la distancia de la primera copia + separador
+      setTimeout(() => {
+        const firstCopy = exchangeMarquee.querySelector('.copy');
+        const separator = exchangeMarquee.querySelector('.separator');
+        const marqueeDistance = firstCopy.offsetWidth + separator.offsetWidth;
+        exchangeMarquee.style.setProperty('--marquee-distance', marqueeDistance + 'px');
+      }, 0);
+      
+      // Polling para el tipo de cambio cada 5s
+      function pollExchangeRate() {
+        fetch("{{ url_for('current_exchange_rate', branch_id=branch.id) }}")
+          .then(response => {
+            if (!response.ok) throw new Error("Error al obtener TC");
+            return response.json();
+          })
+          .then(data => {
+            const buyFormatted = parseFloat(data.buy).toFixed(4);
+            const sellFormatted = parseFloat(data.sell).toFixed(4);
+            const buyEls = document.querySelectorAll('.buy-value');
+            const sellEls = document.querySelectorAll('.sell-value');
+            buyEls.forEach(el => el.textContent = buyFormatted);
+            sellEls.forEach(el => el.textContent = sellFormatted);
+          })
+          .catch(error => console.error("Error en polling:", error));
+      }
+      pollExchangeRate();
+      setInterval(pollExchangeRate, 5000);
+
+      // -------------------------------------------------------
+      // NOTIFICACIONES: "Pase a caja X" + sonido beepX.mp3
+      // -------------------------------------------------------
+      const popup = document.getElementById('notification-popup');
+      const popupMessage = document.getElementById('notification-message');
+      const audio = document.getElementById('notification-sound');
+
+      function checkNotification() {
+        fetch("{{ url_for('current_notification', branch_id=branch.id) }}")
+          .then(r => r.json())
+          .then(data => {
+            const message = data.message;
+            const soundId = data.sound_id;
+
+            if (message) {
+              // Mostrar popup
+              popupMessage.textContent = message;
+              popup.style.display = "flex";
+
+              // Definir ruta del sonido beepX.mp3
+              // Asegúrate de tener beep1.mp3 ... beep10.mp3 en static/sounds/
+              const audioUrl = "{{ url_for('static', filename='sounds') }}" + "/beep" + soundId + ".mp3";
+              audio.src = audioUrl;
+
+              // Reproducir sonido
+              audio.currentTime = 0;
+              audio.play().catch(err => console.error("No se pudo reproducir:", err));
+
+              // Después de 4s, se oculta y se limpia la notificación en el servidor
+              setTimeout(() => {
+                popup.style.display = "none";
+                fetch("{{ url_for('clear_notification', branch_id=branch.id) }}", {
+                  method: 'POST'
+                });
+              }, 4000);
+            }
+          })
+          .catch(err => console.error("Error en checkNotification:", err));
+      }
+
+      // Polling cada 5s para ver si hay notificación nueva
+      setInterval(checkNotification, 5000);
+    });
+  </script>
+</body>
+</html>
