@@ -441,7 +441,7 @@
               leftInfoContainer.style.color = 'white';
     
               // 2) Mostramos "Caja #X"
-              leftInfoContainer.innerHTML = `Caja${message}`;
+              leftInfoContainer.innerHTML = `Caja<br>#${message}`;
     
               // 3) Reproducir el sonido (solo una vez)
               const audioUrl = "{{ url_for('static', filename='sounds') }}" + `/beep${soundId}.mp3`;
@@ -460,7 +460,7 @@
                     // Ya se limpió del servidor. Liberamos lastMessage
                     lastMessage = null;
                   });
-              }, 4000);
+              }, 5000);
             }
           })
           .catch(err => console.error("Error en checkNotification:", err));

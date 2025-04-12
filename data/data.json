@@ -4,33 +4,33 @@
       "id": 1,
       "name": "Sucursal_001",
       "weather_data": {
-        "last_updated": "2025-04-12T13:40:41.505359",
+        "last_updated": "2025-04-12T15:35:29.478005",
         "current_weather": {
-          "temperature_str": "22.3°C",
-          "weather_code": 3,
-          "weather_icon_url": "/static/images/nublado.png"
+          "temperature_str": "21.6°C",
+          "weather_code": 0,
+          "weather_icon_url": "/static/images/soleado.png"
         },
         "daily_forecast": [
           {
             "formatted_date": "12 de abril",
             "weather_code": 3,
             "weather_icon_url": "/static/images/nublado.png",
-            "max_temp_str": "22.3°C",
-            "min_temp_str": "11.8°C"
+            "max_temp_str": "23.2°C",
+            "min_temp_str": "12.2°C"
           },
           {
             "formatted_date": "13 de abril",
             "weather_code": 3,
             "weather_icon_url": "/static/images/nublado.png",
-            "max_temp_str": "21.8°C",
-            "min_temp_str": "9.8°C"
+            "max_temp_str": "21.9°C",
+            "min_temp_str": "10.3°C"
           },
           {
             "formatted_date": "14 de abril",
             "weather_code": 51,
             "weather_icon_url": "/static/images/llovizna_ligera.png",
             "max_temp_str": "23.1°C",
-            "min_temp_str": "9.5°C"
+            "min_temp_str": "10.3°C"
           },
           {
             "formatted_date": "15 de abril",
