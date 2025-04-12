@@ -272,7 +272,7 @@ def get_weather_data(branch_id):
         
         day = dt_local.day
         month = dt_local.month
-        formatted_date = f"{day} de {month_map.get(month, '???')}"
+        formatted_date = f"{day} {month_map.get(month, '???')}"
 
         daily_records.append({
             "formatted_date": formatted_date,

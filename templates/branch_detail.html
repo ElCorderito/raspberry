@@ -34,7 +34,7 @@
       /* transform: translateX(-50%); */
     
       /* Ahora simplemente lo posicionamos con left: 12% */
-      left: 13%;
+      left: 14%;
     
       /* Cambiamos el ancho de 75vw a 80vw */
       width: 80vw;            /* Ajusta el ancho al 80% de la ventana */
@@ -56,7 +56,7 @@
       top: 0;
       right: 0;
       /* Cambiamos el 15% original a 8% */
-      width: 7%;
+      width: 6%;
       height: 100%;
       background: linear-gradient(to bottom, #005f73, #0a9396);
       overflow: hidden;
@@ -238,7 +238,7 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 13%;
+      width: 14%;
       height: 100%;
       display: flex;
       flex-direction: column;
@@ -246,7 +246,7 @@
       align-items: center;
       text-align: center;
     
-      font-size: 2rem;  /* Ajusta el tamaño que desees */
+      font-size: 5rem;  /* Ajusta el tamaño que desees */
       font-weight: bold;
     }   
     
@@ -353,7 +353,7 @@
 
           const maxMinDiv = document.createElement('div');
           maxMinDiv.innerHTML = `
-            <span class="max-temp">${day.max_temp_str}</span> /
+            <span class="max-temp">${day.max_temp_str}</span> 
             <span class="min-temp">${day.min_temp_str}</span>
           `;
           dayBox.appendChild(maxMinDiv);
@@ -441,7 +441,7 @@
               leftInfoContainer.style.color = 'white';
     
               // 2) Mostramos "Caja #X"
-              leftInfoContainer.innerHTML = `Caja<br>#${message}`;
+              leftInfoContainer.innerHTML = `Caja<br>${message}`;
     
               // 3) Reproducir el sonido (solo una vez)
               const audioUrl = "{{ url_for('static', filename='sounds') }}" + `/beep${soundId}.mp3`;

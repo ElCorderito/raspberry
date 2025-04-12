@@ -4,7 +4,7 @@
       "id": 1,
       "name": "Sucursal_001",
       "weather_data": {
-        "last_updated": "2025-04-12T15:35:29.478005",
+        "last_updated": "2025-04-12T15:55:38.180166",
         "current_weather": {
           "temperature_str": "21.6°C",
           "weather_code": 0,
@@ -12,56 +12,56 @@
         },
         "daily_forecast": [
           {
-            "formatted_date": "12 de abril",
+            "formatted_date": "12 abril",
             "weather_code": 3,
             "weather_icon_url": "/static/images/nublado.png",
             "max_temp_str": "23.2°C",
             "min_temp_str": "12.2°C"
           },
           {
-            "formatted_date": "13 de abril",
+            "formatted_date": "13 abril",
             "weather_code": 3,
             "weather_icon_url": "/static/images/nublado.png",
             "max_temp_str": "21.9°C",
             "min_temp_str": "10.3°C"
           },
           {
-            "formatted_date": "14 de abril",
+            "formatted_date": "14 abril",
             "weather_code": 51,
             "weather_icon_url": "/static/images/llovizna_ligera.png",
             "max_temp_str": "23.1°C",
             "min_temp_str": "10.3°C"
           },
           {
-            "formatted_date": "15 de abril",
+            "formatted_date": "15 abril",
             "weather_code": 3,
             "weather_icon_url": "/static/images/nublado.png",
             "max_temp_str": "19.3°C",
             "min_temp_str": "6.8°C"
           },
           {
-            "formatted_date": "16 de abril",
+            "formatted_date": "16 abril",
             "weather_code": 3,
             "weather_icon_url": "/static/images/nublado.png",
             "max_temp_str": "16.2°C",
             "min_temp_str": "4.8°C"
           },
           {
-            "formatted_date": "17 de abril",
+            "formatted_date": "17 abril",
             "weather_code": 45,
             "weather_icon_url": "/static/images/niebla.png",
             "max_temp_str": "8.1°C",
             "min_temp_str": "3.8°C"
           },
           {
-            "formatted_date": "18 de abril",
+            "formatted_date": "18 abril",
             "weather_code": 51,
             "weather_icon_url": "/static/images/llovizna_ligera.png",
             "max_temp_str": "7.1°C",
             "min_temp_str": "2.7°C"
           },
           {
-            "formatted_date": "19 de abril",
+            "formatted_date": "19 abril",
             "weather_code": 3,
             "weather_icon_url": "/static/images/nublado.png",
             "max_temp_str": "11.6°C",
