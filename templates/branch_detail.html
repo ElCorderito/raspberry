@@ -22,7 +22,6 @@
     }
 
     /*
-      VIDEO con relación de aspecto 16:8 (2:1).
       - width: 75vw para control horizontal.
       - aspect-ratio: 16 / 9 asegura que la altura sea la mitad de la anchura.
       - Centrado horizontalmente usando left: 50% y transform: translateX(-50%).
@@ -30,10 +29,16 @@
     .video-container {
       position: absolute;
       top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 75vw;            /* Ajusta el ancho en viewport-width */
-      aspect-ratio: 16 / 9;    /* 2:1 => 16:8 */
+      /* Quitamos left:50% y transform */
+      /* left: 50%; */
+      /* transform: translateX(-50%); */
+    
+      /* Ahora simplemente lo posicionamos con left: 12% */
+      left: 13%;
+    
+      /* Cambiamos el ancho de 75vw a 80vw */
+      width: 80vw;            /* Ajusta el ancho al 80% de la ventana */
+      aspect-ratio: 16 / 9;
       background: #ddd;
     }
     .video-container iframe {
@@ -50,7 +55,8 @@
       position: absolute;
       top: 0;
       right: 0;
-      width: 15%;
+      /* Cambiamos el 15% original a 8% */
+      width: 7%;
       height: 100%;
       background: linear-gradient(to bottom, #005f73, #0a9396);
       overflow: hidden;
@@ -159,17 +165,12 @@
       background-color: #16a085;
     }
 
-    /*
-      Marquee Horizontal (Tipo de Cambio) GRANDOTE:
-      - height: 25% (ocupa mayor espacio vertical)
-      - font-size: 10vh (texto muy grande, escalado a la altura de la ventana)
-    */
     .exchange-container {
       position: absolute;
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 25%;
+      height: 20%;
       background: linear-gradient(to right, #2C5364, #203A43, #0F2027);
       color: #fff;
       overflow: hidden;
@@ -233,11 +234,32 @@
       color: rgb(0, 69, 143);
       font-weight: bold;
     }
+    .left-info-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 13%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    
+      font-size: 2rem;  /* Ajusta el tamaño que desees */
+      font-weight: bold;
+    }   
+    
   </style>
 </head>
 <body>
 
   <div class="fullscreen-container">
+
+    <!-- Contenedor izquierdo (12%): Notificación / Espacio en blanco -->
+    <div class="left-info-container" id="left-info-container">
+      <!-- Aquí irá la notificación en verde/rojo -->
+    </div>
 
     <!-- VIDEO con ratio 16:8 (2:1) -->
     <div class="video-container">
@@ -275,13 +297,6 @@
             No definido
           {% endif %}
         </span>
-      </div>
-    </div>
-
-    <!-- POPUP DE NOTIFICACIÓN -->
-    <div id="notification-popup">
-      <div id="notification-box">
-        <span id="notification-message"></span>
       </div>
     </div>
 
@@ -405,38 +420,54 @@
       // ============================
       // NOTIFICACIONES
       // ============================
-      const popup = document.getElementById('notification-popup');
-      const popupMessage = document.getElementById('notification-message');
+      const leftInfoContainer = document.getElementById('left-info-container');
       const audio = document.getElementById('notification-sound');
+    
+      let lastMessage = null;  
 
       function checkNotification() {
-        if (popup.style.display === "flex") {
-          return;
-        }
         fetch("{{ url_for('current_notification', branch_id=branch.id) }}")
           .then(r => r.json())
           .then(data => {
             const message = data.message;
             const soundId = data.sound_id;
-            if (message) {
-              popupMessage.textContent = message;
-              popup.style.display = "flex";
-
-              const audioUrl = "{{ url_for('static', filename='sounds') }}" + "/beep" + soundId + ".mp3";
+    
+            // Si hay un mensaje distinto del anterior, reproducimos
+            if (message && message !== lastMessage) {
+              lastMessage = message;  // Actualizamos para no duplicar audio
+    
+              // 1) Fondo verde, texto blanco
+              leftInfoContainer.style.backgroundColor = 'green';
+              leftInfoContainer.style.color = 'white';
+    
+              // 2) Mostramos "Caja #X"
+              leftInfoContainer.innerHTML = `Caja${message}`;
+    
+              // 3) Reproducir el sonido (solo una vez)
+              const audioUrl = "{{ url_for('static', filename='sounds') }}" + `/beep${soundId}.mp3`;
               audio.src = audioUrl;
               audio.currentTime = 0;
               audio.play().catch(err => console.error("No se pudo reproducir:", err));
-
-              // Ocultar popup después de 4s y limpiar la notificación en el servidor
+    
+              // 4) Pasados 4s cambiamos a rojo y hacemos el clear
               setTimeout(() => {
-                popup.style.display = "none";
-                fetch("{{ url_for('clear_notification', branch_id=branch.id) }}", { method: 'POST' });
+                leftInfoContainer.style.backgroundColor = 'red';
+                leftInfoContainer.innerHTML = `Espere<br>Su Turno`;
+    
+                // Limpiamos la notificación en el servidor
+                fetch("{{ url_for('clear_notification', branch_id=branch.id) }}", { method: 'POST' })
+                  .then(() => {
+                    // Ya se limpió del servidor. Liberamos lastMessage
+                    lastMessage = null;
+                  });
               }, 4000);
             }
           })
           .catch(err => console.error("Error en checkNotification:", err));
       }
-
+    
+      // Seguimos llamando cada segundo, pero la variable lastMessage
+      // evita la repetición del audio en la misma notificación
       setInterval(checkNotification, 1000);
     });
   </script>

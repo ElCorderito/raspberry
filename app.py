@@ -123,7 +123,7 @@ def notify():
     Recibe:
     {
       "branch_id": <int>,
-      "message": "¡Favor de pasar a la Caja X!",
+      "message": "Caja X",
       "sound_id": <int>  // Ej: 1..10
     }
     """
