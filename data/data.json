@@ -4,9 +4,9 @@
       "id": 1,
       "name": "Sucursal_001",
       "weather_data": {
-        "last_updated": "2025-04-15T11:54:15.683094",
+        "last_updated": "2025-04-15T13:18:37.073353",
         "current_weather": {
-          "temperature_str": "17.5°C",
+          "temperature_str": "17.6°C",
           "weather_code": 3,
           "weather_icon_url": "/static/images/nublado.png"
         },
@@ -15,8 +15,8 @@
             "formatted_date": "15 abril",
             "weather_code": 45,
             "weather_icon_url": "/static/images/niebla.png",
-            "max_temp_str": "17.9°C",
-            "min_temp_str": "8.1°C"
+            "max_temp_str": "17.6°C",
+            "min_temp_str": "8.4°C"
           },
           {
             "formatted_date": "16 abril",
@@ -29,43 +29,43 @@
             "formatted_date": "17 abril",
             "weather_code": 45,
             "weather_icon_url": "/static/images/niebla.png",
-            "max_temp_str": "12.1°C",
-            "min_temp_str": "3.5°C"
+            "max_temp_str": "11.8°C",
+            "min_temp_str": "3.9°C"
           },
           {
             "formatted_date": "18 abril",
             "weather_code": 3,
             "weather_icon_url": "/static/images/nublado.png",
-            "max_temp_str": "12.6°C",
-            "min_temp_str": "2.9°C"
+            "max_temp_str": "9.1°C",
+            "min_temp_str": "3.3°C"
           },
           {
             "formatted_date": "19 abril",
             "weather_code": 45,
             "weather_icon_url": "/static/images/niebla.png",
-            "max_temp_str": "20.6°C",
-            "min_temp_str": "5.1°C"
+            "max_temp_str": "19.9°C",
+            "min_temp_str": "4.5°C"
           },
           {
             "formatted_date": "20 abril",
             "weather_code": 3,
             "weather_icon_url": "/static/images/nublado.png",
-            "max_temp_str": "21.0°C",
-            "min_temp_str": "8.9°C"
+            "max_temp_str": "21.9°C",
+            "min_temp_str": "8.1°C"
           },
           {
             "formatted_date": "21 abril",
             "weather_code": 3,
             "weather_icon_url": "/static/images/nublado.png",
-            "max_temp_str": "20.4°C",
-            "min_temp_str": "8.2°C"
+            "max_temp_str": "22.2°C",
+            "min_temp_str": "9.2°C"
           },
           {
             "formatted_date": "22 abril",
             "weather_code": 3,
             "weather_icon_url": "/static/images/nublado.png",
-            "max_temp_str": "17.4°C",
-            "min_temp_str": "6.0°C"
+            "max_temp_str": "17.5°C",
+            "min_temp_str": "7.0°C"
           }
         ]
       },
