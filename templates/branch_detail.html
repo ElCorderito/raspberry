@@ -33,7 +33,7 @@
       /* left: 50%; */
       /* transform: translateX(-50%); */
     
-      /* Ahora simplemente lo posicionamos con left: 12% */
+      /* Ahora simplemente lo posicionamos con left: 14% */
       left: 14%;
     
       /* Cambiamos el ancho de 75vw a 80vw */
@@ -48,14 +48,13 @@
     }
 
     /*
-      Clima en la derecha, ocupando un 15% de ancho.
+      Clima en la derecha, ocupando un 6% de ancho.
       Toda la altura (100%).
     */
     .weather-container {
       position: absolute;
       top: 0;
       right: 0;
-      /* Cambiamos el 15% original a 8% */
       width: 6%;
       height: 100%;
       background: linear-gradient(to bottom, #005f73, #0a9396);
@@ -87,6 +86,8 @@
       padding: 0.2rem 0.5rem;
       text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.4);
     }
+
+    /* Marquee CLIMA (NO SE TOCA) */
     .marquee-wrapper {
       position: absolute;
       top: 20%;
@@ -165,6 +166,7 @@
       background-color: #16a085;
     }
 
+    /* Contenedor inferior: Tipo de Cambio con mayor altura */
     .exchange-container {
       position: absolute;
       bottom: 0;
@@ -176,25 +178,39 @@
       overflow: hidden;
       display: flex;
       align-items: center;
+      justify-content: center; /* Para centrar horizontalmente */
       box-sizing: border-box;
     }
-    .exchange-marquee {
-      display: inline-flex;
-      white-space: nowrap;
-      will-change: transform;
-      animation: marquee-horizontal 7s linear infinite;
-      font-size: 10vh; /* MUY GRANDE, Ajusta según tu preferencia */
+
+    /*
+      COMENTAMOS TODO LO RELACIONADO AL MARQUEE ABAJO:
+      
+      .exchange-marquee {
+        display: inline-flex;
+        white-space: nowrap;
+        will-change: transform;
+        animation: marquee-horizontal 20s linear infinite; 
+        font-size: 10vh; 
+        font-weight: bold;
+      }
+
+      @keyframes marquee-horizontal {
+        0%   { transform: translate3d(0, 0, 0); }
+        100% { transform: translate3d(calc(-1 * var(--marquee-distance)), 0, 0); }
+      }
+    */
+
+    /* Hacemos un estilo estático y centrado para mostrar "Compra" y "Venta" */
+    .exchange-static {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      font-size: 10vh;
       font-weight: bold;
-      padding-left: 2rem; /* Un poco de espacio inicial */
+      white-space: nowrap; /* Puedes mantenerlo para no romper las líneas */
     }
-    @keyframes marquee-horizontal {
-      0% {
-        transform: translate3d(0, 0, 0);
-      }
-      100% {
-        transform: translate3d(calc(-1 * var(--marquee-distance)), 0, 0);
-      }
-    }
+
     .separator {
       display: inline-block;
       width: 2rem;
@@ -245,7 +261,6 @@
       justify-content: center;
       align-items: center;
       text-align: center;
-    
       font-size: 5rem;  /* Ajusta el tamaño que desees */
       font-weight: bold;
     }   
@@ -279,8 +294,33 @@
 
     <!-- Contenedor inferior: Tipo de Cambio con mayor altura -->
     <div class="exchange-container">
-      <div class="exchange-marquee" id="exchange-marquee">
-        <span class="buy-text">Compra:</span>
+      <!--
+        COMENTAMOS el antiguo marquee:
+        
+        <div class="exchange-marquee" id="exchange-marquee">
+          <span class="buy-text">Compra:</span>
+          <span class="buy-value">
+            {% if branch.exchange_rate.buy is not none %}
+              {{ "%.4f"|format(branch.exchange_rate.buy) }}
+            {% else %}
+              No definido
+            {% endif %}
+          </span>
+          <span class="separator"></span>
+          <span class="sell-text">Venta:</span>
+          <span class="sell-value">
+            {% if branch.exchange_rate.sell is not none %}
+              {{ "%.4f"|format(branch.exchange_rate.sell) }}
+            {% else %}
+              No definido
+            {% endif %}
+          </span>
+        </div>
+      -->
+
+      <!-- Nuevo bloque estático, centrado y sin animación -->
+      <div class="exchange-static" id="exchange-static">
+        <span class="buy-text">Compra: </span>
         <span class="buy-value">
           {% if branch.exchange_rate.buy is not none %}
             {{ "%.4f"|format(branch.exchange_rate.buy) }}
@@ -289,7 +329,7 @@
           {% endif %}
         </span>
         <span class="separator"></span>
-        <span class="sell-text">Venta:</span>
+        <span class="sell-text">Venta: </span>
         <span class="sell-value">
           {% if branch.exchange_rate.sell is not none %}
             {{ "%.4f"|format(branch.exchange_rate.sell) }}
@@ -300,9 +340,6 @@
       </div>
     </div>
 
-    <!-- Botón para actualizar el clima manualmente (opcional) -->
-    <button id="btn-update-weather" class="btn-update-weather">Actualizar Clima</button>
-
     <!-- AUDIO para notificaciones -->
     <audio id="notification-sound"></audio>
   </div>
@@ -310,7 +347,7 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       // ============================
-      // CLIMA
+      // CLIMA (sin cambios)
       // ============================
       function renderCurrentWeather(current) {
         const container = document.getElementById('current-weather-container');
@@ -360,9 +397,29 @@
 
           marqueeTrack.appendChild(dayBox);
         });
-        // Duplicar contenido para el efecto continuo
+        // Duplicar contenido para el efecto continuo (solo clima)
         marqueeTrack.innerHTML += marqueeTrack.innerHTML;
       }
+
+      function pollWeatherFlag() {
+        fetch("{{ url_for('check_weather_flag', branch_id=branch.id) }}")
+          .then(resp => resp.json())
+          .then(data => {
+            if (data.update === true) {
+              // Forzamos la actualización
+              updateWeatherData()
+                .then(() => {
+                  // Limpiamos el flag
+                  fetch("{{ url_for('clear_weather_flag', branch_id=branch.id) }}", { method: 'POST' });
+                });
+            }
+          })
+          .catch(err => console.error("Error en pollWeatherFlag:", err));
+      }
+      
+      // Llamamos pollWeatherFlag cada 1 minuto (ejemplo)
+      setInterval(pollWeatherFlag, 60000);
+      
 
       function updateWeatherData() {
         fetch("{{ url_for('get_weather_data', branch_id=branch.id) }}")
@@ -380,26 +437,22 @@
       }
 
       updateWeatherData();
-      const btnUpdateWeather = document.getElementById('btn-update-weather');
-      btnUpdateWeather.addEventListener('click', updateWeatherData);
+      // Al final de tu script en branch_detail.html
+      // Después de `updateWeatherData();`
+      setInterval(updateWeatherData, 14400000); // 14400000ms = 4 horas
 
       // ============================
-      // MARQUEE TIPO DE CAMBIO
+      // MARQUEE TIPO DE CAMBIO (COMENTADO / REMOVIDO)
       // ============================
+      /*
       const exchangeMarquee = document.getElementById('exchange-marquee');
-      const content = exchangeMarquee.innerHTML.trim().replace(/\$\s+/g, '$');
-      exchangeMarquee.innerHTML =
-        `<span class="copy">${content}</span>` +
-        `<span class="separator"></span>` +
-        `<span class="copy">${content}</span>`;
+      let originalContent = exchangeMarquee.innerHTML.trim() + " ";
+      ...
+      */
 
-      setTimeout(() => {
-        const firstCopy = exchangeMarquee.querySelector('.copy');
-        const separator = exchangeMarquee.querySelector('.separator');
-        const marqueeDistance = firstCopy.offsetWidth + separator.offsetWidth;
-        exchangeMarquee.style.setProperty('--marquee-distance', marqueeDistance + 'px');
-      }, 0);
-
+      // ============================
+      // Pero mantenemos el POLLING para actualizar los valores
+      // ============================
       function pollExchangeRate() {
         fetch("{{ url_for('current_exchange_rate', branch_id=branch.id) }}")
           .then(response => {
@@ -409,6 +462,7 @@
           .then(data => {
             const buyFormatted = parseFloat(data.buy).toFixed(4);
             const sellFormatted = parseFloat(data.sell).toFixed(4);
+            // Actualizamos en las clases .buy-value y .sell-value
             document.querySelectorAll('.buy-value').forEach(el => el.textContent = buyFormatted);
             document.querySelectorAll('.sell-value').forEach(el => el.textContent = sellFormatted);
           })

@@ -9,6 +9,8 @@ import pytz
 
 app = Flask(__name__)
 
+WEATHER_UPDATE_REQUESTED = False
+
 # Este dict se puede poner globalmente o dentro de la función
 WEATHER_ICON_MAP = {
     0: "images/soleado.png",
@@ -36,6 +38,28 @@ DATA_FILE = os.path.join('data', 'data.json')
 
 # Variable global en memoria para la última notificación
 LAST_NOTIFICATION = None
+
+@app.route('/branch/<int:branch_id>/request_weather_update', methods=['POST'])
+def request_weather_update(branch_id):
+    global WEATHER_UPDATE_REQUESTED
+    # (Verificas si el branch existe, etc. si gustas)
+    WEATHER_UPDATE_REQUESTED = True
+    return jsonify({"status": "weather_update_requested"})
+
+@app.route('/branch/<int:branch_id>/check_weather_flag')
+def check_weather_flag(branch_id):
+    global WEATHER_UPDATE_REQUESTED
+    if WEATHER_UPDATE_REQUESTED:
+        return jsonify({"update": True})
+    else:
+        return jsonify({"update": False})
+
+@app.route('/branch/<int:branch_id>/clear_weather_flag', methods=['POST'])
+def clear_weather_flag(branch_id):
+    global WEATHER_UPDATE_REQUESTED
+    WEATHER_UPDATE_REQUESTED = False
+    return jsonify({"status": "cleared"})
+
 
 # ------------------------------------------------------------------------
 # Funciones para leer/escribir data.json
