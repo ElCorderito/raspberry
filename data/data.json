@@ -4,33 +4,33 @@
       "id": 1,
       "name": "Sucursal_001",
       "weather_data": {
-        "last_updated": "2025-04-15T13:18:37.073353",
+        "last_updated": "2025-04-15T15:26:26.334385",
         "current_weather": {
-          "temperature_str": "17.6°C",
-          "weather_code": 3,
-          "weather_icon_url": "/static/images/nublado.png"
+          "temperature_str": "16.3°C",
+          "weather_code": 0,
+          "weather_icon_url": "/static/images/soleado.png"
         },
         "daily_forecast": [
           {
             "formatted_date": "15 abril",
             "weather_code": 45,
             "weather_icon_url": "/static/images/niebla.png",
-            "max_temp_str": "17.6°C",
-            "min_temp_str": "8.4°C"
+            "max_temp_str": "17.9°C",
+            "min_temp_str": "9.1°C"
           },
           {
             "formatted_date": "16 abril",
             "weather_code": 45,
             "weather_icon_url": "/static/images/niebla.png",
-            "max_temp_str": "10.3°C",
-            "min_temp_str": "4.2°C"
+            "max_temp_str": "8.4°C",
+            "min_temp_str": "3.9°C"
           },
           {
             "formatted_date": "17 abril",
-            "weather_code": 45,
-            "weather_icon_url": "/static/images/niebla.png",
+            "weather_code": 61,
+            "weather_icon_url": "/static/images/lluvia.png",
             "max_temp_str": "11.8°C",
-            "min_temp_str": "3.9°C"
+            "min_temp_str": "3.4°C"
           },
           {
             "formatted_date": "18 abril",

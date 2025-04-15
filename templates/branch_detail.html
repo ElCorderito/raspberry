@@ -263,19 +263,40 @@
       text-align: center;
       font-size: 5rem;  /* Ajusta el tamaño que desees */
       font-weight: bold;
-    }   
-    /* Para el mensaje de notificación (Caja y número) */
+    }
+    
     .notification-message .big-text {
       font-size: 8rem;  /* Ajusta este valor al tamaño deseado */
       font-weight: bold;
     }
 
-    /* Para el mensaje de "Espere Su Turno" */
     .small-text {
       font-size: 5rem;  /* Tamaño menor */
       font-weight: bold;
     }
 
+    .arrow {
+      display: inline-block;
+      height: 75px;
+      width: 150px;
+      background: #fff;
+      /* Si quieres mantener una rotación base, la puedes combinar con la variable: */
+      transform: rotate(var(--angle, 0deg));
+      margin-top: 40px;
+    }
+    
+    .arrow:before {
+      content: "";
+      border-top: 100px solid #fff;
+      border-left: 100px solid transparent;
+      border-right: 100px solid transparent;
+      border-bottom: 100px solid transparent;
+      transform: rotateZ(90deg) translateY(70%) translateX(-31%);
+      position: relative;
+      display: inline-block;
+    }
+    
+    
   </style>
 </head>
 <body>
@@ -506,21 +527,22 @@
       
               // 2) Mostramos "Caja #X" + imagen
               const cajaNumber = parseInt(message.replace(/\D/g, '')) || 0;
+              const desiredAngle = 0; // Ángulo deseado en grados
               leftInfoContainer.innerHTML = `
-              <div class="notification-message">
-                <span class="big-text">Caja</span><br>
-                <span class="big-text">${message}</span><br>
-                <img id="caja-img" src="{{ url_for('static', filename='images/arrow.png') }}" alt="Imagen de la caja" style="max-width: 100px;">
-              </div>
-            `;
-            
-              // Si la caja es par, voltear
+                <div class="notification-message">
+                  <span class="big-text">Caja</span><br>
+                  <span class="big-text">${message}</span><br>
+                  <div class="arrow" style="--angle: ${desiredAngle}deg;"></div>
+                </div>
+              `;
+              
+              // Si la caja es par y quieres, por ejemplo, invertir la flecha, podrías modificarla:
               if (cajaNumber % 2 === 0) {
-                const img = document.getElementById('caja-img');
-                if (img) {
-                  img.style.transform = 'scaleX(-1)';
-                }
-              }
+                // Alternativamente, podrías usar un ángulo diferente o aplicar una transformación extra
+                const arrow = document.querySelector('.arrow');
+                // Para invertir horizontalmente, podrías combinar la rotación con scaleX(-1):
+                arrow.style.transform = `rotate(${desiredAngle}deg) scaleX(-1)`;
+              }                         
       
               // 3) Reproducir el sonido
               const audioUrl = "{{ url_for('static', filename='sounds') }}" + `/beep${soundId}.mp3`;
