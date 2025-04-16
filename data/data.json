@@ -4,26 +4,26 @@
       "id": 1,
       "name": "Sucursal_001",
       "weather_data": {
-        "last_updated": "2025-04-16T16:10:50.853242",
+        "last_updated": "2025-04-16T16:53:03.982176",
         "current_weather": {
-          "temperature_str": "9.5°C",
-          "weather_code": 3,
-          "weather_icon_url": "/static/images/nublado.png"
+          "temperature_str": "9.6°C",
+          "weather_code": 1,
+          "weather_icon_url": "/static/images/mayormente_despejado.png"
         },
         "daily_forecast": [
           {
             "formatted_date": "16 abril",
             "weather_code": 45,
             "weather_icon_url": "/static/images/niebla.png",
-            "max_temp_str": "10.1°C",
-            "min_temp_str": "4.1°C"
+            "max_temp_str": "9.6°C",
+            "min_temp_str": "3.4°C"
           },
           {
             "formatted_date": "17 abril",
             "weather_code": 45,
             "weather_icon_url": "/static/images/niebla.png",
             "max_temp_str": "8.4°C",
-            "min_temp_str": "3.4°C"
+            "min_temp_str": "2.9°C"
           },
           {
             "formatted_date": "18 abril",

@@ -15,6 +15,34 @@
       font-size: 16px;
     }
 
+    :root {
+      /* Clima */
+      --weather-top:      #005f73;
+      --weather-bottom:   #0a9396;
+    
+      /* Tipo de cambio */
+      --exchange-start:   #005f73;
+      --exchange-end:rgb(15, 137, 139);
+    
+      /* Compra / Venta */
+      --color-buy:rgb(75, 182, 89);  /* verde mar pastel */
+      --color-sell:       #dc3545;  /* rojo ladrillo */
+    
+      /* Botón actualizar clima */
+      --btn-weather:      #4dabf7;  /* azul claro */
+      --btn-weather-hov:  #3684c3;  /* azul medio */
+    
+      /* Notificación */
+      --notif-border:     #023047;  /* azul noche */
+    
+      /* Caja de día */
+      --day-bg:           rgba(255,255,255,0.3);
+      --day-border:       rgba(255,255,255,0.8);
+    
+      /* Mínima temperatura */
+      --min-temp:         #80defb;  /* celeste suave */
+    }
+
     .fullscreen-container {
       position: relative;
       width: 100%;
@@ -58,7 +86,8 @@
       right: 0;
       width: 6%;
       height: 100%;
-      background: linear-gradient(to bottom, #005f73, #0a9396);
+      background: linear-gradient(to bottom,
+      var(--weather-top), var(--weather-bottom));
       overflow: hidden;
     }
     #current-weather-container {
@@ -118,8 +147,8 @@
       }
     }
     .day-box {
-      background-color: rgba(255, 255, 255, 0.25);
-      border: 1px solid #fff;
+      background-color: var(--day-bg);
+      border: 1px solid var(--day-border);
       border-radius: 8px;
       padding: 1rem 2rem;
       color: #fff;
@@ -146,7 +175,7 @@
       color: #dc3545;
     }
     .min-temp {
-      color: blue;
+      color: var(--min-temp);
     }
 
     /* Botón para actualizar el clima manualmente (opcional) */
@@ -157,14 +186,14 @@
       padding: 8px 12px;
       font-size: 0.9rem;
       cursor: pointer;
-      background-color: #1abc9c;
+      background-color: var(--btn-weather);
       color: #fff;
       border: none;
       border-radius: 4px;
       z-index: 10;
     }
     .btn-update-weather:hover {
-      background-color: #16a085;
+      background-color: var(--btn-weather-hov);
     }
 
     /* Contenedor inferior: Tipo de Cambio con mayor altura */
@@ -174,7 +203,8 @@
       left: 0;
       width: 100%;
       height: 20%;
-      background: linear-gradient(to right, #2C5364, #203A43, #0F2027);
+      background: linear-gradient(to right,
+      var(--exchange-start), var(--exchange-end));
       color: #fff;
       overflow: hidden;
       display: flex;
@@ -225,11 +255,11 @@
     }
     .buy-text,
     .buy-value {
-      color: #28a745; /* Verde */
+      color: var(--color-buy);
     }
     .sell-text,
     .sell-value {
-      color: #dc3545; /* Rojo */
+      color: var(--color-sell);
     }
 
     /* POPUP DE NOTIFICACIÓN */
@@ -247,7 +277,7 @@
     }
     #notification-box {
       width: 60%;
-      background-color: rgba(255,255,255,0.9);
+      border-color: var(--notif-border);
       border: 2px solid rgb(0, 69, 143);
       border-radius: 12px;
       padding: 2rem;
@@ -255,7 +285,7 @@
     }
     #notification-box span {
       font-size: 4rem;
-      color: rgb(0, 69, 143);
+      color: var(--notif-border);
       font-weight: bold;
     }
     .left-info-container {
