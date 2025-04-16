@@ -12,6 +12,7 @@
       height: 100%;
       font-family: Arial, sans-serif;
       background-color: #f5f5f5;
+      font-size: 16px;
     }
 
     .fullscreen-container {
@@ -206,11 +207,18 @@
       flex-direction: row;
       justify-content: center;
       align-items: center;
-      font-size: 10vh;
+      font-size: 6.8vw;
       font-weight: bold;
       white-space: nowrap; /* Puedes mantenerlo para no romper las líneas */
     }
 
+    @media (min-width: 1920px) {
+      html { font-size: 20px; }
+    }
+    @media (min-width: 1080px) and (max-width: 1919px) {
+      html { font-size: 16px; }
+    }
+    
     .separator {
       display: inline-block;
       width: 2rem;
@@ -266,12 +274,12 @@
     }
     
     .notification-message .big-text {
-      font-size: 8rem;  /* Ajusta este valor al tamaño deseado */
+      font-size: 6rem;  /* Ajusta este valor al tamaño deseado */
       font-weight: bold;
     }
 
     .small-text {
-      font-size: 5rem;  /* Tamaño menor */
+      font-size: 4rem;  /* Tamaño menor */
       font-weight: bold;
     }
 
@@ -355,7 +363,7 @@
         <span class="buy-text">Compra: </span>
         <span class="buy-value">
           {% if branch.exchange_rate.buy is not none %}
-            {{ "%.4f"|format(branch.exchange_rate.buy) }}
+            {{ branch.exchange_rate.buy_str }}
           {% else %}
             No definido
           {% endif %}
@@ -364,7 +372,7 @@
         <span class="sell-text">Venta: </span>
         <span class="sell-value">
           {% if branch.exchange_rate.sell is not none %}
-            {{ "%.4f"|format(branch.exchange_rate.sell) }}
+            {{ branch.exchange_rate.sell_str }}
           {% else %}
             No definido
           {% endif %}
@@ -485,23 +493,27 @@
       // ============================
       // Pero mantenemos el POLLING para actualizar los valores
       // ============================
+      function formatRate(val) {
+        const num = parseFloat(val);
+        const parts = num.toString().split('.');
+        const dec = parts[1] || '';
+        if (dec.length <= 3) {
+          return num.toFixed(3);
+        }
+        return num.toFixed(4);
+      }
+      
       function pollExchangeRate() {
         fetch("{{ url_for('current_exchange_rate', branch_id=branch.id) }}")
-          .then(response => {
-            if (!response.ok) throw new Error("Error al obtener TC");
-            return response.json();
-          })
+          .then(r => r.json())
           .then(data => {
-            const buyFormatted = parseFloat(data.buy).toFixed(4);
-            const sellFormatted = parseFloat(data.sell).toFixed(4);
-            // Actualizamos en las clases .buy-value y .sell-value
-            document.querySelectorAll('.buy-value').forEach(el => el.textContent = buyFormatted);
-            document.querySelectorAll('.sell-value').forEach(el => el.textContent = sellFormatted);
+            const buyF  = formatRate(data.buy);
+            const sellF = formatRate(data.sell);
+            document.querySelectorAll('.buy-value').forEach(el => el.textContent  = buyF);
+            document.querySelectorAll('.sell-value').forEach(el => el.textContent = sellF);
           })
-          .catch(error => console.error("Error en polling:", error));
-      }
-      pollExchangeRate();
-      setInterval(pollExchangeRate, 5000);
+          .catch(console.error);
+      }     
 
       // ============================
       // NOTIFICACIONES
@@ -553,7 +565,7 @@
               // 4) Pasados 4-5s, cambiar a rojo y limpiar
               setTimeout(() => {
                 leftInfoContainer.style.backgroundColor = '#dc3545';
-                leftInfoContainer.innerHTML = `<span class="small-text">Espere<br>Su Turno</span>`;
+                leftInfoContainer.innerHTML = `<span class="small-text">Espere<br>Turno</span>`;
                 // Limpiamos del servidor
                 fetch("{{ url_for('clear_notification', branch_id=branch.id) }}", { method: 'POST' })
                   .then(() => { lastMessage = null; });

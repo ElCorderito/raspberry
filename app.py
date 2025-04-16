@@ -61,6 +61,7 @@ def clear_weather_flag(branch_id):
     return jsonify({"status": "cleared"})
 
 
+
 # ------------------------------------------------------------------------
 # Funciones para leer/escribir data.json
 # ------------------------------------------------------------------------
@@ -86,6 +87,20 @@ def list_branches():
 # ------------------------------------------------------------------------
 # Detalle de sucursal -> Usa la plantilla branch_detail.html
 # ------------------------------------------------------------------------
+def format_rate(rate):
+    # 1) formatea a 4 decimales
+    s = f"{rate:.4f}"
+    # 2) quita ceros finales y punto si sobra
+    s = s.rstrip('0').rstrip('.')
+    # 3) asegúrate de tener al menos 3 decimales
+    if '.' not in s:
+        s += '.000'
+    else:
+        dec = s.split('.')[1]
+        if len(dec) < 3:
+            s += '0' * (3 - len(dec))
+    return s
+
 @app.route('/branch/<int:branch_id>')
 def branch_detail(branch_id):
     data = load_data()
@@ -96,6 +111,11 @@ def branch_detail(branch_id):
     weather_data = branch.get("weather_data", {})
     daily_forecast = weather_data.get("daily", [])
     hourly_forecast = weather_data.get("hourly", [])
+
+    buy = branch["exchange_rate"]["buy"]
+    sell = branch["exchange_rate"]["sell"]
+    branch["exchange_rate"]["buy_str"]  = format_rate(buy)
+    branch["exchange_rate"]["sell_str"] = format_rate(sell)
 
     return render_template('branch_detail.html',
                            branch=branch,
