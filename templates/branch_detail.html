@@ -26,7 +26,7 @@
     
       /* Compra / Venta */
       --color-buy:rgb(75, 182, 89);  /* verde mar pastel */
-      --color-sell:       #dc3545;  /* rojo ladrillo */
+      --color-sell:       #b22222;  /* rojo ladrillo */
     
       /* Botón actualizar clima */
       --btn-weather:      #4dabf7;  /* azul claro */
@@ -172,7 +172,7 @@
       margin-bottom: 0.3rem;
     }
     .max-temp {
-      color: #dc3545;
+      color: #b22222;
     }
     .min-temp {
       color: var(--min-temp);
@@ -237,7 +237,7 @@
       flex-direction: row;
       justify-content: center;
       align-items: center;
-      font-size: 6.8vw;
+      font-size: 7vw;
       font-weight: bold;
       white-space: nowrap; /* Puedes mantenerlo para no romper las líneas */
     }
@@ -390,8 +390,8 @@
 
       <!-- Nuevo bloque estático, centrado y sin animación -->
       <div class="exchange-static" id="exchange-static">
-        <span class="buy-text">Compra: </span>
-        <span class="buy-value">
+        <span class="buy-text">Buy&nbsp;</span>
+        <span class="buy-value">     
           {% if branch.exchange_rate.buy is not none %}
             {{ branch.exchange_rate.buy_str }}
           {% else %}
@@ -399,7 +399,7 @@
           {% endif %}
         </span>
         <span class="separator"></span>
-        <span class="sell-text">Venta: </span>
+        <span class="sell-text">Sell&nbsp;</span>
         <span class="sell-value">
           {% if branch.exchange_rate.sell is not none %}
             {{ branch.exchange_rate.sell_str }}
@@ -534,16 +534,16 @@
       }
       
       function pollExchangeRate() {
-        fetch("{{ url_for('current_exchange_rate', branch_id=branch.id) }}")
+        fetch("{{ url_for('current_exchange_rate', branch_id=branch.id) }}?t=" + Date.now()) // evita caché
           .then(r => r.json())
           .then(data => {
             const buyF  = formatRate(data.buy);
             const sellF = formatRate(data.sell);
-            document.querySelectorAll('.buy-value').forEach(el => el.textContent  = buyF);
+            document.querySelectorAll('.buy-value').forEach(el  => el.textContent = buyF);
             document.querySelectorAll('.sell-value').forEach(el => el.textContent = sellF);
           })
           .catch(console.error);
-      }     
+      }  
 
       // ============================
       // NOTIFICACIONES
@@ -564,7 +564,7 @@
               lastMessage = message;  
       
               // 1) Fondo verde, texto blanco
-              leftInfoContainer.style.backgroundColor = 'green';
+              leftInfoContainer.style.backgroundColor = '#4bb659';
               leftInfoContainer.style.color = 'white';
       
               // 2) Mostramos "Caja #X" + imagen
@@ -594,7 +594,7 @@
       
               // 4) Pasados 4-5s, cambiar a rojo y limpiar
               setTimeout(() => {
-                leftInfoContainer.style.backgroundColor = '#dc3545';
+                leftInfoContainer.style.backgroundColor = '#b22222';
                 leftInfoContainer.innerHTML = `<span class="small-text">Espere<br>Turno</span>`;
                 // Limpiamos del servidor
                 fetch("{{ url_for('clear_notification', branch_id=branch.id) }}", { method: 'POST' })
@@ -605,9 +605,12 @@
           .catch(err => console.error("Error en checkNotification:", err));
       }    
     
+      pollExchangeRate();
+      setInterval(pollExchangeRate, 4000); 
+
       // Seguimos llamando cada segundo, pero la variable lastMessage
       // evita la repetición del audio en la misma notificación
-      setInterval(checkNotification, 1000);
+      setInterval(checkNotification, 500);
     });
   </script>
 </body>

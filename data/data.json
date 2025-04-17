@@ -4,9 +4,9 @@
       "id": 1,
       "name": "Sucursal_001",
       "weather_data": {
-        "last_updated": "2025-04-16T16:53:03.982176",
+        "last_updated": "2025-04-16T17:39:27.896828",
         "current_weather": {
-          "temperature_str": "9.6°C",
+          "temperature_str": "7.8°C",
           "weather_code": 1,
           "weather_icon_url": "/static/images/mayormente_despejado.png"
         },
@@ -15,15 +15,15 @@
             "formatted_date": "16 abril",
             "weather_code": 45,
             "weather_icon_url": "/static/images/niebla.png",
-            "max_temp_str": "9.6°C",
-            "min_temp_str": "3.4°C"
+            "max_temp_str": "9.1°C",
+            "min_temp_str": "3.8°C"
           },
           {
             "formatted_date": "17 abril",
             "weather_code": 45,
             "weather_icon_url": "/static/images/niebla.png",
             "max_temp_str": "8.4°C",
-            "min_temp_str": "2.9°C"
+            "min_temp_str": "3.2°C"
           },
           {
             "formatted_date": "18 abril",
@@ -70,8 +70,8 @@
         ]
       },
       "exchange_rate": {
-        "buy": 23.21,
-        "sell": 24.3212
+        "buy": 19.1234,
+        "sell": 19.5432
       }
     },
     {
