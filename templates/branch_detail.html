@@ -548,62 +548,57 @@
       // ============================
       // NOTIFICACIONES
       // ============================
+      let lastMessage = null;
       const leftInfoContainer = document.getElementById('left-info-container');
       const audio = document.getElementById('notification-sound');
-    
-      let lastMessage = null;  
-
+      
       function checkNotification() {
         fetch("{{ url_for('current_notification', branch_id=branch.id) }}")
           .then(r => r.json())
           .then(data => {
-            const message = data.message;
-            const soundId = data.sound_id;
+            const message     = data.message;     // e.g. "Caja 3"
+            const soundId     = data.sound_id;    // número de sonido
+            const rotationIdx = data.rotation || 0; // 0..8
       
+            // solo actuamos si llega un mensaje nuevo
             if (message && message !== lastMessage) {
-              lastMessage = message;  
+              lastMessage = message;
       
-              // 1) Fondo verde, texto blanco
+              // 1) fondo verde y texto blanco
               leftInfoContainer.style.backgroundColor = '#4bb659';
               leftInfoContainer.style.color = 'white';
       
-              // 2) Mostramos "Caja #X" + imagen
-              const cajaNumber = parseInt(message.replace(/\D/g, '')) || 0;
-              const desiredAngle = 0; // Ángulo deseado en grados
-              leftInfoContainer.innerHTML = `
+              // 2) construimos el HTML base con el texto de caja
+              const cajaHTML = `
                 <div class="notification-message">
                   <span class="big-text">Caja</span><br>
                   <span class="big-text">${message}</span><br>
-                  <div class="arrow" style="--angle: ${desiredAngle}deg;"></div>
+                  ${ rotationIdx > 0
+                    ? `<div class="arrow" style="--angle: ${(rotationIdx - 1) * 45}deg;"></div>`
+                    : ``
+                  }
                 </div>
               `;
-              
-              // Si la caja es par y quieres, por ejemplo, invertir la flecha, podrías modificarla:
-              if (cajaNumber % 2 === 0) {
-                // Alternativamente, podrías usar un ángulo diferente o aplicar una transformación extra
-                const arrow = document.querySelector('.arrow');
-                // Para invertir horizontalmente, podrías combinar la rotación con scaleX(-1):
-                arrow.style.transform = `rotate(${desiredAngle}deg) scaleX(-1)`;
-              }                         
+              leftInfoContainer.innerHTML = cajaHTML;
       
-              // 3) Reproducir el sonido
+              // 3) reproducir sonido
               const audioUrl = "{{ url_for('static', filename='sounds') }}" + `/beep${soundId}.mp3`;
               audio.src = audioUrl;
               audio.currentTime = 0;
               audio.play().catch(err => console.error("No se pudo reproducir:", err));
       
-              // 4) Pasados 4-5s, cambiar a rojo y limpiar
+              // 4) tras 5s, cambiamos a rojo y mostramos “Espere Turno”
               setTimeout(() => {
                 leftInfoContainer.style.backgroundColor = '#b22222';
                 leftInfoContainer.innerHTML = `<span class="small-text">Espere<br>Turno</span>`;
-                // Limpiamos del servidor
                 fetch("{{ url_for('clear_notification', branch_id=branch.id) }}", { method: 'POST' })
-                  .then(() => { lastMessage = null; });
+                  .then(() => { lastMessage = null; })
+                  .catch(console.error);
               }, 5000);
             }
           })
           .catch(err => console.error("Error en checkNotification:", err));
-      }    
+      }
     
       pollExchangeRate();
       setInterval(pollExchangeRate, 4000); 

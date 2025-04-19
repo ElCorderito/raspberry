@@ -179,6 +179,7 @@ def notify():
     branch_id = data.get("branch_id")
     message = data.get("message")
     sound_id = data.get("sound_id")
+    rotation  = data.get("rotation", 0)
 
     content = load_data()
     branch = next((b for b in content["branches"] if b["id"] == branch_id), None)
@@ -188,7 +189,8 @@ def notify():
     LAST_NOTIFICATION = {
         "branch_id": branch_id,
         "message": message,
-        "sound_id": sound_id
+        "sound_id": sound_id,
+        "rotation": rotation
     }
     return jsonify({"status": "ok"}), 200
 
@@ -198,7 +200,8 @@ def current_notification(branch_id):
     if LAST_NOTIFICATION and LAST_NOTIFICATION["branch_id"] == branch_id:
         return jsonify({
             "message":  LAST_NOTIFICATION["message"],
-            "sound_id": LAST_NOTIFICATION["sound_id"]
+            "sound_id": LAST_NOTIFICATION["sound_id"],
+            "rotation": LAST_NOTIFICATION.get("rotation", 0)
         })
     else:
         return jsonify({"message": None, "sound_id": None})
