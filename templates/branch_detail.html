@@ -415,198 +415,89 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // ============================
-      // CLIMA (sin cambios)
-      // ============================
-      function renderCurrentWeather(current) {
-        const container = document.getElementById('current-weather-container');
-        container.innerHTML = "";
-        if (!current || !current.temperature_str) {
-          container.textContent = "Sin datos";
-          return;
-        }
-        const tempEl = document.createElement('div');
-        tempEl.classList.add('current-temp');
-        tempEl.textContent = current.temperature_str;
-
-        const codeEl = document.createElement('div');
-        const img = document.createElement('img');
-        img.src = current.weather_icon_url;
-        codeEl.appendChild(img);
-
-        container.appendChild(tempEl);
-        container.appendChild(codeEl);
-      }
-
-      function renderDailyForecast(dailyForecast) {
-        const marqueeTrack = document.querySelector('.marquee-text-track');
-        marqueeTrack.innerHTML = "";
-
-        dailyForecast.forEach(day => {
-          const dayBox = document.createElement('div');
-          dayBox.classList.add('day-box');
-
-          const dateDiv = document.createElement('div');
-          dateDiv.classList.add('day-date');
-          dateDiv.textContent = day.formatted_date;
-          dayBox.appendChild(dateDiv);
-
-          const weatherDiv = document.createElement('div');
-          const img = document.createElement('img');
-          img.src = day.weather_icon_url;
-          weatherDiv.appendChild(img);
-          dayBox.appendChild(weatherDiv);
-
-          const maxMinDiv = document.createElement('div');
-          maxMinDiv.innerHTML = `
-            <span class="max-temp">${day.max_temp_str}</span> 
-            <span class="min-temp">${day.min_temp_str}</span>
-          `;
-          dayBox.appendChild(maxMinDiv);
-
-          marqueeTrack.appendChild(dayBox);
-        });
-        // Duplicar contenido para el efecto continuo (solo clima)
-        marqueeTrack.innerHTML += marqueeTrack.innerHTML;
-      }
-
-      function pollWeatherFlag() {
-        fetch("{{ url_for('check_weather_flag', branch_id=branch.id) }}")
-          .then(resp => resp.json())
-          .then(data => {
-            if (data.update === true) {
-              // Forzamos la actualización
-              updateWeatherData()
-                .then(() => {
-                  // Limpiamos el flag
-                  fetch("{{ url_for('clear_weather_flag', branch_id=branch.id) }}", { method: 'POST' });
-                });
-            }
-          })
-          .catch(err => console.error("Error en pollWeatherFlag:", err));
-      }
-      
-      // Llamamos pollWeatherFlag cada 1 minuto (ejemplo)
-      setInterval(pollWeatherFlag, 60000);
-      
-
-      function updateWeatherData() {
-        fetch("{{ url_for('get_weather_data', branch_id=branch.id) }}")
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Error al actualizar el clima');
-            }
-            return response.json();
-          })
-          .then(data => {
-            renderCurrentWeather(data.current_weather);
-            renderDailyForecast(data.daily_forecast);
-          })
-          .catch(error => console.error(error));
-      }
-
-      updateWeatherData();
-      // Al final de tu script en branch_detail.html
-      // Después de `updateWeatherData();`
-      setInterval(updateWeatherData, 14400000); // 14400000ms = 4 horas
-
-      // ============================
-      // MARQUEE TIPO DE CAMBIO (COMENTADO / REMOVIDO)
-      // ============================
-      /*
-      const exchangeMarquee = document.getElementById('exchange-marquee');
-      let originalContent = exchangeMarquee.innerHTML.trim() + " ";
-      ...
-      */
-
-      // ============================
-      // Pero mantenemos el POLLING para actualizar los valores
-      // ============================
-      function formatRate(val) {
-        const num = parseFloat(val);
-        const parts = num.toString().split('.');
-        const dec = parts[1] || '';
-        if (dec.length <= 3) {
-          return num.toFixed(3);
-        }
-        return num.toFixed(4);
-      }
-      
-      function pollExchangeRate() {
-        fetch("{{ url_for('current_exchange_rate', branch_id=branch.id) }}?t=" + Date.now()) // evita caché
-          .then(r => r.json())
-          .then(data => {
-            const buyF  = formatRate(data.buy);
-            const sellF = formatRate(data.sell);
-            document.querySelectorAll('.buy-value').forEach(el  => el.textContent = buyF);
-            document.querySelectorAll('.sell-value').forEach(el => el.textContent = sellF);
-          })
-          .catch(console.error);
-      }  
-
-      // ============================
-      // NOTIFICACIONES
-      // ============================
-      let lastMessage = null;
-      const leftInfoContainer = document.getElementById('left-info-container');
-      const audio = document.getElementById('notification-sound');
-      
-      function checkNotification() {
-        fetch("{{ url_for('current_notification', branch_id=branch.id) }}")
-          .then(r => r.json())
-          .then(data => {
-            const message     = data.message;     // e.g. "Caja 3"
-            const soundId     = data.sound_id;    // número de sonido
-            const rotationIdx = data.rotation || 0; // 0..8
-      
-            // solo actuamos si llega un mensaje nuevo
-            if (message && message !== lastMessage) {
-              lastMessage = message;
-      
-              // 1) fondo verde y texto blanco
-              leftInfoContainer.style.backgroundColor = '#4bb659';
-              leftInfoContainer.style.color = 'white';
-      
-              // 2) construimos el HTML base con el texto de caja
-              const cajaHTML = `
-                <div class="notification-message">
-                  <span class="big-text">Caja</span><br>
-                  <span class="big-text">${message}</span><br>
-                  ${ rotationIdx > 0
-                    ? `<div class="arrow" style="--angle: ${(rotationIdx - 1) * 45}deg;"></div>`
-                    : ``
-                  }
-                </div>
-              `;
-              leftInfoContainer.innerHTML = cajaHTML;
-      
-              // 3) reproducir sonido
-              const audioUrl = "{{ url_for('static', filename='sounds') }}" + `/beep${soundId}.mp3`;
-              audio.src = audioUrl;
-              audio.currentTime = 0;
-              audio.play().catch(err => console.error("No se pudo reproducir:", err));
-      
-              // 4) tras 5s, cambiamos a rojo y mostramos “Espere Turno”
-              setTimeout(() => {
-                leftInfoContainer.style.backgroundColor = '#b22222';
-                leftInfoContainer.innerHTML = `<span class="small-text">Espere<br>Turno</span>`;
-                fetch("{{ url_for('clear_notification', branch_id=branch.id) }}", { method: 'POST' })
-                  .then(() => { lastMessage = null; })
-                  .catch(console.error);
-              }, 5000);
-            }
-          })
-          .catch(err => console.error("Error en checkNotification:", err));
+    document.addEventListener('DOMContentLoaded', () => {
+      /* ===============  CLIMA  =============== */
+      function renderCurrentWeather(cur) {
+        const c = document.getElementById('current-weather-container');
+        c.innerHTML = '';
+        if (!cur || !cur.temperature_str) { c.textContent = 'Sin datos'; return; }
+        c.innerHTML = `
+          <div class="current-temp">${cur.temperature_str}</div>
+          <div><img src="${cur.weather_icon_url}"></div>`;
       }
     
-      pollExchangeRate();
-      setInterval(pollExchangeRate, 4000); 
-
-      // Seguimos llamando cada segundo, pero la variable lastMessage
-      // evita la repetición del audio en la misma notificación
-      setInterval(checkNotification, 500);
+      function renderDailyForecast(days) {
+        const track = document.querySelector('.marquee-text-track');
+        track.innerHTML = '';
+        days.forEach(d => {
+          track.insertAdjacentHTML('beforeend', `
+            <div class="day-box">
+              <div class="day-date">${d.formatted_date}</div>
+              <div><img src="${d.weather_icon_url}"></div>
+              <div><span class="max-temp">${d.max_temp_str}</span>
+                   <span class="min-temp">${d.min_temp_str}</span></div>
+            </div>`);
+        });
+        track.innerHTML += track.innerHTML;          /* dup para scroll */
+      }
+    
+      async function updateWeatherData() {
+        const r = await fetch('{{ url_for("get_weather_data", branch_id=branch.id) }}');
+        if (r.ok) { const d = await r.json();
+          renderCurrentWeather(d.current_weather);
+          renderDailyForecast(d.daily_forecast);
+        }
+      }
+      updateWeatherData();
+      setInterval(updateWeatherData, 4 * 60 * 60 * 1000);          /* 4 h */
+      setInterval(() => fetch('{{ url_for("check_weather_flag", branch_id=branch.id) }}')
+        .then(r => r.json()).then(d => d.update && updateWeatherData()
+          .then(()=>fetch('{{ url_for("clear_weather_flag", branch_id=branch.id) }}',{method:'POST'})))
+        .catch(console.error), 60*1000);
+    
+      /* ===============  TIPO DE CAMBIO  =============== */
+      function fmt(val){const n=parseFloat(val),d=(n+'').split('.')[1]||'';return n.toFixed(d.length<=3?3:4);}
+      function pollExchange(){
+        fetch('{{ url_for("current_exchange_rate", branch_id=branch.id) }}?t='+Date.now())
+          .then(r=>r.json()).then(d=>{
+            const b=fmt(d.buy), s=fmt(d.sell);
+            document.querySelectorAll('.buy-value').forEach(e=>e.textContent=b);
+            document.querySelectorAll('.sell-value').forEach(e=>e.textContent=s);
+          }).catch(console.error);
+      }
+      pollExchange(); setInterval(pollExchange,4000);
+    
+      /* ===============  NOTIFICACIONES  =============== */
+      const leftInfo = document.getElementById('left-info-container');
+      const audio    = document.getElementById('notification-sound');
+      let lastMsg    = null;
+    
+      function checkNotification(){
+        fetch('{{ url_for("next_notification", branch_id=branch.id) }}?t='+Date.now())
+          .then(r=>r.json()).then(d=>{
+            if(!d.message||d.message===lastMsg) return;
+            lastMsg=d.message;
+    
+            leftInfo.style.background='#4bb659'; leftInfo.style.color='white';
+            leftInfo.innerHTML=`
+              <div class="notification-message">
+                <span class="big-text">Caja</span><br>
+                <span class="big-text">${d.message}</span><br>
+                ${d.rotation>0?`<div class="arrow" style="--angle:${(d.rotation-1)*45}deg;"></div>`:''}
+              </div>`;
+    
+            audio.src='{{ url_for("static", filename="sounds") }}/beep'+d.sound_id+'.mp3';
+            audio.currentTime=0; audio.play().catch(console.error);
+    
+            setTimeout(()=>{                           /* mostrar “Espere turno” */
+              leftInfo.style.background='#b22222';
+              leftInfo.innerHTML='<span class="small-text">Espere<br>Turno</span>';
+              lastMsg=null;                            /* lista para la sig. */
+            },5000);
+          }).catch(console.error);
+      }
+      setInterval(checkNotification,500);
     });
-  </script>
+    </script>    
 </body>
 </html>
