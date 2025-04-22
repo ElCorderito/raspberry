@@ -138,37 +138,64 @@ def get_weather_data(branch_id):
     if not branch:
         return jsonify({"error": "Sucursal no encontrada"}), 404
 
-    url  = "https://api.open-meteo.com/v1/forecast"
-    tz   = pytz.timezone("America/Los_Angeles")
-    day0 = datetime.now(tz).date()
-
+    url   = "https://api.open-meteo.com/v1/forecast"
+    tz    = pytz.timezone("America/Los_Angeles")
+    day0  = datetime.now(tz).date()
     cache = requests_cache.CachedSession('.cache', expire_after=3600)
 
-    # --- hourly ---
+    # ---------- hourly (para el “ahora”) ----------
     p_h = {
         "latitude": 33.2553, "longitude": -116.5664,
         "hourly": ["temperature_2m", "weather_code"],
         "timezone": "America/Los_Angeles",
         "start_date": day0, "end_date": day0 + timedelta(days=1)
     }
-    h   = cache.get(url, params=p_h).json()["hourly"]
+    h = cache.get(url, params=p_h).json().get("hourly", {})
     now = datetime.now(tz).replace(tzinfo=None)
 
-    def nearest(hourly):
-        best, diff = None, timedelta.max
-        for t, temp, code in zip(hourly["time"], hourly["temperature_2m"], hourly["weather_code"]):
-            d = abs(now - pd.to_datetime(t))
-            if d < diff:
-                best, diff = (temp, code), d
-        return best
-
-    temp, code = nearest(h)
+    best, diff = None, timedelta.max
+    for t, temp, code in zip(h["time"], h["temperature_2m"], h["weather_code"]):
+        d = abs(now - pd.to_datetime(t))
+        if d < diff:
+            best, diff = (temp, code), d
+    temp_now, code_now = best
     current = {
-        "temperature_str": f"{temp:.1f}°C",
-        "weather_icon_url": url_for('static', filename=WEATHER_ICON_MAP.get(code, 'images/default.png'))
+        "temperature_str": f"{temp_now:.1f}°C",
+        "weather_icon_url": url_for('static',
+                                    filename=WEATHER_ICON_MAP.get(code_now, 'images/default.png'))
     }
 
-    final = {"last_updated": datetime.now().isoformat(), "current_weather": current, "daily_forecast": []}
+    # ---------- daily (pronóstico 7 días) ----------
+    p_d = {
+        "latitude": 33.2553, "longitude": -116.5664,
+        "daily": ["weather_code", "temperature_2m_max", "temperature_2m_min"],
+        "timezone": "America/Los_Angeles",
+        "start_date": day0, "end_date": day0 + timedelta(days=7)
+    }
+    d_json = cache.get(url, params=p_d).json().get("daily", {})
+
+    month_es = ['enero','febrero','marzo','abril','mayo','junio',
+                'julio','agosto','septiembre','octubre','noviembre','diciembre']
+    daily_forecast = []
+    for t, code, tmax, tmin in zip(d_json["time"],
+                                   d_json["weather_code"],
+                                   d_json["temperature_2m_max"],
+                                   d_json["temperature_2m_min"]):
+        dt = pd.to_datetime(t)
+        daily_forecast.append({
+            "formatted_date": f"{dt.day} {month_es[dt.month-1]}",
+            "weather_icon_url": url_for('static',
+                                        filename=WEATHER_ICON_MAP.get(code, 'images/default.png')),
+            "max_temp_str": f"{tmax:.1f}°C",
+            "min_temp_str": f"{tmin:.1f}°C"
+        })
+
+    final = {
+        "last_updated": datetime.now().isoformat(),
+        "current_weather": current,
+        "daily_forecast": daily_forecast
+    }
+
     branch["weather_data"] = final
     save_data(data)
     return jsonify(final)
