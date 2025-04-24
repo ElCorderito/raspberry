@@ -1,9 +1,14 @@
+# app.py
 import os, json
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, render_template, abort, url_for
 import requests, requests_cache, pandas as pd, pytz
 
-app = Flask(__name__)
+app = Flask(__name__)                # 1) crea la app
+
+from admin import admin              # 2) importa el blueprint
+app.register_blueprint(admin)        # 3) lo registras
+
 
 # -------------  Archivos y utilidades -----------------
 DATA_FILE  = os.path.join('data', 'data.json')

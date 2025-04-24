@@ -56,7 +56,7 @@
       - Centrado horizontalmente usando left: 50% y transform: translateX(-50%).
     */
     .video-container {
-      position: absolute;
+      position: relative;
       top: 0;
       /* Quitamos left:50% y transform */
       /* left: 50%; */
@@ -64,16 +64,39 @@
     
       /* Ahora simplemente lo posicionamos con left: 14% */
       left: 14%;
-    
+      z-index: 0;
       /* Cambiamos el ancho de 75vw a 80vw */
       width: 80vw;            /* Ajusta el ancho al 80% de la ventana */
       aspect-ratio: 16 / 9;
       background: #ddd;
     }
+
+    .player-bg{
+      position:absolute;inset:0;
+      background-size:cover;
+      background-position:center;
+      filter:blur(12px) brightness(.7);
+      transform:scale(1.2);   /* para que la foto “sobre” y no se vean bordes */
+      z-index:1;
+    }
+    .player-fg{
+      position:relative;z-index:2;
+      width:100%;height:100%;
+      object-fit:contain;
+    }
+
     .video-container iframe {
       width: 100%;
       height: 100%;
       border: none;
+    }
+
+    /* ---------- player ---------- */
+    .video-container img,
+    .video-container video {
+      width:100%;
+      height:100%;
+      object-fit:contain;     /* barras transparentes */
     }
 
     /*
@@ -86,6 +109,7 @@
       right: 0;
       width: 6%;
       height: 100%;
+      z-index: 100;
       background: linear-gradient(to bottom,
       var(--weather-top), var(--weather-bottom));
       overflow: hidden;
@@ -203,6 +227,7 @@
       left: 0;
       width: 100%;
       height: 20%;
+      z-index: 100;
       background: linear-gradient(to right,
       var(--exchange-start), var(--exchange-end));
       color: #fff;
@@ -301,6 +326,7 @@
       text-align: center;
       font-size: 5rem;  /* Ajusta el tamaño que desees */
       font-weight: bold;
+      z-index: 100;
     }
     
     .notification-message .big-text {
@@ -333,8 +359,6 @@
       position: relative;
       display: inline-block;
     }
-    
-    
   </style>
 </head>
 <body>
@@ -346,13 +370,8 @@
       <!-- Aquí irá la notificación en verde/rojo -->
     </div>
 
-    <!-- VIDEO con ratio 16:8 (2:1) -->
-    <div class="video-container">
-      <iframe
-        src="https://www.youtube.com/embed/91BUM3WhCfo?autoplay=1&mute=1&loop=1&controls=0&modestbranding=1&cc_load_policy=0&iv_load_policy=3&rel=0&playlist=91BUM3WhCfo"
-        allow="autoplay; encrypted-media">
-      </iframe>
-    </div>
+    <!-- VIDEO con ratio 16:9 (2:1) -->
+    <div id="player" class="video-container"></div>
 
     <!-- Contenedor derecho: Clima -->
     <div class="weather-container">
@@ -364,30 +383,6 @@
 
     <!-- Contenedor inferior: Tipo de Cambio con mayor altura -->
     <div class="exchange-container">
-      <!--
-        COMENTAMOS el antiguo marquee:
-        
-        <div class="exchange-marquee" id="exchange-marquee">
-          <span class="buy-text">Compra:</span>
-          <span class="buy-value">
-            {% if branch.exchange_rate.buy is not none %}
-              {{ "%.4f"|format(branch.exchange_rate.buy) }}
-            {% else %}
-              No definido
-            {% endif %}
-          </span>
-          <span class="separator"></span>
-          <span class="sell-text">Venta:</span>
-          <span class="sell-value">
-            {% if branch.exchange_rate.sell is not none %}
-              {{ "%.4f"|format(branch.exchange_rate.sell) }}
-            {% else %}
-              No definido
-            {% endif %}
-          </span>
-        </div>
-      -->
-
       <!-- Nuevo bloque estático, centrado y sin animación -->
       <div class="exchange-static" id="exchange-static">
         <span class="buy-text">Buy&nbsp;</span>
@@ -498,6 +493,29 @@
       }
       setInterval(checkNotification,500);
     });
-    </script>    
+    </script>
+    
+    <script>
+      async function loadList(){return fetch('/static/playlist.json?'+Date.now()).then(r=>r.json())}
+      async function start(){let l=await loadList(),i=0;
+       const p=document.getElementById('player');
+       async function next(){
+        const {type,file,duration=60}=l[i]; i=(i+1)%l.length; p.innerHTML='';
+        if(type==='youtube'){
+          p.innerHTML=`<iframe src="https://www.youtube.com/embed/${file}?autoplay=1&mute=1&loop=1&playlist=${file}&controls=0&modestbranding=1"></iframe>`;
+        }else if(type==='video'){
+          p.innerHTML=`<video src="/admin/media/${file}" autoplay muted></video>`;
+        }else{
+          p.innerHTML = `
+            <div class="player-bg"
+                style="background-image:url(/admin/media/${file})"></div>
+            <img src="/admin/media/${file}" class="player-fg">`;
+        }
+        setTimeout(next,duration*1000);
+       }
+       next();
+      }
+      start();
+    </script>      
 </body>
 </html>
