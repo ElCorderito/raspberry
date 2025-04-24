@@ -1,5 +1,10 @@
 [
   {
+    "type": "image",
+    "file": "de13b9ce4f2a47d88c1b1f4d4ca236bd.png",
+    "duration": 5
+  },
+  {
     "duration": 79,
     "file": "91BUM3WhCfo",
     "type": "youtube"
@@ -16,12 +21,12 @@
   },
   {
     "duration": 5,
-    "file": "089085c8904d41a7b00729ea68a5b65d.png",
+    "file": "5fdbe3a3a67740a8a2cc273853224f8d.png",
     "type": "image"
   },
   {
     "duration": 5,
-    "file": "5fdbe3a3a67740a8a2cc273853224f8d.png",
+    "file": "089085c8904d41a7b00729ea68a5b65d.png",
     "type": "image"
   }
 ]
