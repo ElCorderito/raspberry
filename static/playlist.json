@@ -1,8 +1,8 @@
 [
   {
     "type": "image",
-    "file": "de13b9ce4f2a47d88c1b1f4d4ca236bd.png",
-    "duration": 5
+    "file": "21db01b23214429393953d7fdc701b46.jpeg",
+    "duration": 60
   },
   {
     "duration": 79,
@@ -27,6 +27,11 @@
   {
     "duration": 5,
     "file": "089085c8904d41a7b00729ea68a5b65d.png",
+    "type": "image"
+  },
+  {
+    "duration": 5,
+    "file": "de13b9ce4f2a47d88c1b1f4d4ca236bd.png",
     "type": "image"
   }
 ]
