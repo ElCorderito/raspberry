@@ -153,7 +153,8 @@ def get_weather_data(branch_id):
         "latitude": 33.2553, "longitude": -116.5664,
         "hourly": ["temperature_2m", "weather_code"],
         "timezone": "America/Los_Angeles",
-        "start_date": day0, "end_date": day0 + timedelta(days=1)
+        "start_date": day0, "end_date": day0 + timedelta(days=1),
+        "temperature_unit": "fahrenheit"
     }
     h = cache.get(url, params=p_h).json().get("hourly", {})
     now = datetime.now(tz).replace(tzinfo=None)
@@ -165,7 +166,7 @@ def get_weather_data(branch_id):
             best, diff = (temp, code), d
     temp_now, code_now = best
     current = {
-        "temperature_str": f"{temp_now:.1f}°C",
+        "temperature_str": f"{temp_now:.1f}°F",
         "weather_icon_url": url_for('static',
                                     filename=WEATHER_ICON_MAP.get(code_now, 'images/default.png'))
     }
@@ -175,7 +176,8 @@ def get_weather_data(branch_id):
         "latitude": 33.2553, "longitude": -116.5664,
         "daily": ["weather_code", "temperature_2m_max", "temperature_2m_min"],
         "timezone": "America/Los_Angeles",
-        "start_date": day0, "end_date": day0 + timedelta(days=7)
+        "start_date": day0, "end_date": day0 + timedelta(days=7),
+        "temperature_unit": "fahrenheit"
     }
     d_json = cache.get(url, params=p_d).json().get("daily", {})
 
@@ -191,8 +193,8 @@ def get_weather_data(branch_id):
             "formatted_date": f"{dt.day} {month_es[dt.month-1]}",
             "weather_icon_url": url_for('static',
                                         filename=WEATHER_ICON_MAP.get(code, 'images/default.png')),
-            "max_temp_str": f"{tmax:.1f}°C",
-            "min_temp_str": f"{tmin:.1f}°C"
+            "max_temp_str": f"{tmax:.1f}°F",
+            "min_temp_str": f"{tmin:.1f}°F"
         })
 
     final = {
