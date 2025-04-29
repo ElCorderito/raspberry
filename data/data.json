@@ -4,7 +4,7 @@
       "id": 1,
       "name": "Sucursal_001",
       "weather_data": {
-        "last_updated": "2025-04-29T11:10:58.512409",
+        "last_updated": "2025-04-29T11:13:25.846989",
         "current_weather": {
           "temperature_str": "68.1°F",
           "weather_icon_url": "/static/images/mayormente_despejado.png"
