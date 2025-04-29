@@ -4,16 +4,16 @@
       "id": 1,
       "name": "Sucursal_001",
       "weather_data": {
-        "last_updated": "2025-04-29T11:15:04.963045",
+        "last_updated": "2025-04-29T13:01:15.371533",
         "current_weather": {
-          "temperature_str": "68.1°F",
+          "temperature_str": "65.9°F",
           "weather_icon_url": "/static/images/mayormente_despejado.png"
         },
         "daily_forecast": [
           {
             "formatted_date": "29 abril",
             "weather_icon_url": "/static/images/niebla.png",
-            "max_temp_str": "68.6°F",
+            "max_temp_str": "68.2°F",
             "min_temp_str": "45.3°F"
           },
           {
