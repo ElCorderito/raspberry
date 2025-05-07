@@ -4,65 +4,65 @@
       "id": 1,
       "name": "Sucursal_001",
       "weather_data": {
-        "last_updated": "2025-04-29T13:01:15.371533",
+        "last_updated": "2025-05-07T12:53:58.532140",
         "current_weather": {
-          "temperature_str": "65.9°F",
-          "weather_icon_url": "/static/images/mayormente_despejado.png"
+          "temperature_str": "66.7°F",
+          "weather_icon_url": "/static/images/soleado.png"
         },
         "daily_forecast": [
           {
-            "formatted_date": "29 abril",
+            "formatted_date": "7 mayo",
             "weather_icon_url": "/static/images/niebla.png",
-            "max_temp_str": "68.2°F",
-            "min_temp_str": "45.3°F"
+            "max_temp_str": "68.8°F",
+            "min_temp_str": "45.4°F"
           },
           {
-            "formatted_date": "30 abril",
-            "weather_icon_url": "/static/images/nublado.png",
-            "max_temp_str": "68.9°F",
-            "min_temp_str": "52.0°F"
-          },
-          {
-            "formatted_date": "1 mayo",
-            "weather_icon_url": "/static/images/nublado.png",
-            "max_temp_str": "65.9°F",
-            "min_temp_str": "45.9°F"
-          },
-          {
-            "formatted_date": "2 mayo",
-            "weather_icon_url": "/static/images/mayormente_despejado.png",
-            "max_temp_str": "68.7°F",
-            "min_temp_str": "44.4°F"
-          },
-          {
-            "formatted_date": "3 mayo",
-            "weather_icon_url": "/static/images/llovizna_ligera.png",
-            "max_temp_str": "61.0°F",
-            "min_temp_str": "44.3°F"
-          },
-          {
-            "formatted_date": "4 mayo",
-            "weather_icon_url": "/static/images/default.png",
-            "max_temp_str": "41.4°F",
-            "min_temp_str": "34.6°F"
-          },
-          {
-            "formatted_date": "5 mayo",
-            "weather_icon_url": "/static/images/nublado.png",
-            "max_temp_str": "46.8°F",
-            "min_temp_str": "38.1°F"
-          },
-          {
-            "formatted_date": "6 mayo",
+            "formatted_date": "8 mayo",
             "weather_icon_url": "/static/images/soleado.png",
-            "max_temp_str": "68.1°F",
-            "min_temp_str": "37.9°F"
+            "max_temp_str": "77.4°F",
+            "min_temp_str": "54.1°F"
+          },
+          {
+            "formatted_date": "9 mayo",
+            "weather_icon_url": "/static/images/soleado.png",
+            "max_temp_str": "83.5°F",
+            "min_temp_str": "57.9°F"
+          },
+          {
+            "formatted_date": "10 mayo",
+            "weather_icon_url": "/static/images/nublado.png",
+            "max_temp_str": "87.3°F",
+            "min_temp_str": "63.3°F"
+          },
+          {
+            "formatted_date": "11 mayo",
+            "weather_icon_url": "/static/images/nublado.png",
+            "max_temp_str": "76.7°F",
+            "min_temp_str": "50.7°F"
+          },
+          {
+            "formatted_date": "12 mayo",
+            "weather_icon_url": "/static/images/niebla.png",
+            "max_temp_str": "58.8°F",
+            "min_temp_str": "41.7°F"
+          },
+          {
+            "formatted_date": "13 mayo",
+            "weather_icon_url": "/static/images/niebla.png",
+            "max_temp_str": "51.6°F",
+            "min_temp_str": "38.7°F"
+          },
+          {
+            "formatted_date": "14 mayo",
+            "weather_icon_url": "/static/images/nublado.png",
+            "max_temp_str": "63.3°F",
+            "min_temp_str": "37.2°F"
           }
         ]
       },
       "exchange_rate": {
-        "buy": 19.1111,
-        "sell": 20.1111
+        "buy": 20.111,
+        "sell": 21.111
       }
     },
     {
