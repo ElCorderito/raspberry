@@ -3,6 +3,9 @@ import os, json
 from datetime import datetime, timedelta
 from flask import Flask, request, jsonify, render_template, abort, url_for
 import requests, requests_cache, pandas as pd, pytz
+import locale
+
+locale.setlocale(locale.LC_TIME, 'en_US.UTF-8')   # fuerza locale inglés
 
 app = Flask(__name__)                # 1) crea la app
 
@@ -185,12 +188,12 @@ def get_weather_data(branch_id):
                 'julio','agosto','septiembre','octubre','noviembre','diciembre']
     daily_forecast = []
     for t, code, tmax, tmin in zip(d_json["time"],
-                                   d_json["weather_code"],
-                                   d_json["temperature_2m_max"],
-                                   d_json["temperature_2m_min"]):
+                                d_json["weather_code"],
+                                d_json["temperature_2m_max"],
+                                d_json["temperature_2m_min"]):
         dt = pd.to_datetime(t)
         daily_forecast.append({
-            "formatted_date": f"{dt.day} {month_es[dt.month-1]}",
+            "formatted_date": f"{dt.day} {dt.strftime('%B')}",  # «7 May», «8 May», …
             "weather_icon_url": url_for('static',
                                         filename=WEATHER_ICON_MAP.get(code, 'images/default.png')),
             "max_temp_str": f"{tmax:.1f}°F",

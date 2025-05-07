@@ -12,7 +12,7 @@
       height: 100%;
       font-family: Arial, sans-serif;
       background-color: #f5f5f5;
-      font-size: 16px;
+      font-size: clamp(16px, 1vw, 32px);
     }
 
     :root {
@@ -134,7 +134,7 @@
       display: block;
     }
     .current-temp {
-      font-size: 1.9rem;
+      font-size: clamp(40px, 3vw, 100px);
       font-weight: bold;
       margin-bottom: 0.3rem;
       padding: 0.2rem 0.5rem;
@@ -176,7 +176,7 @@
       border-radius: 8px;
       padding: 1rem 2rem;
       color: #fff;
-      font-size: 1.1rem;
+      font-size: clamp(24px, 1.8vw, 60px);
       text-align: center;
       width: 80%;
       max-width: 200px;
@@ -330,12 +330,12 @@
     }
     
     .notification-message .big-text {
-      font-size: 6rem;  /* Ajusta este valor al tamaño deseado */
+      font-size: clamp(50px,4vw,120px);
       font-weight: bold;
     }
 
     .small-text {
-      font-size: 4rem;  /* Tamaño menor */
+      font-size: clamp(32px,2.5vw,80px);
       font-weight: bold;
     }
 
