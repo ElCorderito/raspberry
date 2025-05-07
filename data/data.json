@@ -4,7 +4,7 @@
       "id": 1,
       "name": "Sucursal_001",
       "weather_data": {
-        "last_updated": "2025-05-07T15:55:29.378615",
+        "last_updated": "2025-05-07T15:56:28.699350",
         "current_weather": {
           "temperature_str": "68.8°F",
           "weather_icon_url": "/static/images/nublado.png"
