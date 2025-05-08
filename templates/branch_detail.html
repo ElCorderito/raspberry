@@ -323,7 +323,7 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-start;
-      padding-top: 1rem;
+      padding-top: 9rem;
       align-items: center;
       text-align: center;
       font-size: 5rem;  /* Ajusta el tamaño que desees */
@@ -338,7 +338,7 @@
 
     /* al final de tu <style> */
     .notification-message .box-number {
-      font-size: clamp(30px, 12vw, 400px);
+      font-size: clamp(30px, 14vw, 400px);
       font-weight: bold;
     }
 
@@ -481,7 +481,7 @@
             if(!d.message||d.message===lastMsg) return;
             lastMsg=d.message;
     
-            leftInfo.style.background='#FFEB3B'; leftInfo.style.color='white';
+            leftInfo.style.background='#4bb659'; leftInfo.style.color='white';
            leftInfo.innerHTML = `
              <div class="notification-message">
                <span class="big-text">Caja</span><br>
