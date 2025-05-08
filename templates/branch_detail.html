@@ -128,7 +128,7 @@
       font-family: 'Roboto', sans-serif;
     }
     #current-weather-container img {
-      width: clamp(10px, 5vw, 300px);
+      width: clamp(10px, 5.2vw, 300px);
       height: auto;
       max-width: none; 
       margin: 10px auto 0;
@@ -188,7 +188,7 @@
       justify-content: center;
     }
     .day-box img {
-      width: clamp(40px, 3.3vw, 100px);
+      width: clamp(40px, 3.5vw, 100px);
       height: auto;
       object-fit: contain;
     }
@@ -487,7 +487,7 @@
     
             setTimeout(()=>{                           /* mostrar “Espere turno” */
               leftInfo.style.background='#b22222';
-              leftInfo.innerHTML='<span class="small-text">Espere<br>Turno</span>';
+              leftInfo.innerHTML='<span class="small-text">Wait<br>Your<br>Turn</span>';
               lastMsg=null;                            /* lista para la sig. */
             },5000);
           }).catch(console.error);
