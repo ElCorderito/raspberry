@@ -322,7 +322,8 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
+      padding-top: 1rem;
       align-items: center;
       text-align: center;
       font-size: 5rem;  /* Ajusta el tamaño que desees */
@@ -332,6 +333,12 @@
     
     .notification-message .big-text {
       font-size: clamp(10px,6.45vw,400px);
+      font-weight: bold;
+    }
+
+    /* al final de tu <style> */
+    .notification-message .box-number {
+      font-size: clamp(30px, 12vw, 400px);
       font-weight: bold;
     }
 
@@ -474,11 +481,11 @@
             if(!d.message||d.message===lastMsg) return;
             lastMsg=d.message;
     
-            leftInfo.style.background='#4bb659'; leftInfo.style.color='white';
-            leftInfo.innerHTML=`
-              <div class="notification-message">
-                <span class="big-text">Caja</span><br>
-                <span class="big-text">${d.message}</span><br>
+            leftInfo.style.background='#FFEB3B'; leftInfo.style.color='white';
+           leftInfo.innerHTML = `
+             <div class="notification-message">
+               <span class="big-text">Caja</span><br>
+               <span class="box-number">${d.message}</span><br>
                 ${d.rotation>0?`<div class="arrow" style="--angle:${(d.rotation-1)*45}deg;"></div>`:''}
               </div>`;
     
