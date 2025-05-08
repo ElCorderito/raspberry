@@ -25,7 +25,7 @@
       --exchange-end: rgb(0, 0, 0);
     
       /* Compra / Venta */
-      --color-buy: rgb(75, 182, 89);  /* verde mar pastel #FFEB3B*/
+      --color-buy: rgb(75, 182, 89);  /* verde mar pastel */
       --color-sell:       #b22222;  /* rojo ladrillo */
     
       /* Botón actualizar clima */
@@ -485,11 +485,12 @@
             audio.src='{{ url_for("static", filename="sounds") }}/beep'+d.sound_id+'.mp3';
             audio.currentTime=0; audio.play().catch(console.error);
     
-            setTimeout(()=>{                           /* mostrar “Espere turno” */
-              leftInfo.style.background='#b22222';
-              leftInfo.innerHTML='<span class="small-text">Wait<br>Your<br>Turn</span>';
-              lastMsg=null;                            /* lista para la sig. */
-            },5000);
+            // Después
+            setTimeout(()=>{                           
+              leftInfo.style.background = 'linear-gradient(to bottom, var(--weather-top), var(--weather-bottom))';
+              leftInfo.innerHTML = '<span class="small-text">Wait<br>Your<br>Turn</span>';
+              lastMsg = null;                            
+            }, 5000);
           }).catch(console.error);
       }
       setInterval(checkNotification,500);
