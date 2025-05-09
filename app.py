@@ -235,6 +235,13 @@ def send_media(branch_id, fname):
     branch = next(b for b in load_data()["branches"] if b["id"] == branch_id)
     return send_from_directory(media_path(branch), fname)
 
+@app.after_request
+def add_no_cache(resp):
+    resp.headers["Cache-Control"] = "no-cache, must-revalidate"
+    resp.headers["Pragma"]        = "no-cache"
+    resp.headers["Expires"]       = "0"
+    return resp
+
 # -------------  Run -----------------
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
