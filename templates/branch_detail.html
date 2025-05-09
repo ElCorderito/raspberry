@@ -428,7 +428,7 @@
           <div class="current-temp">${cur.temperature_str}</div>
           <div><img src="${cur.weather_icon_url}"></div>`;
       }
-    
+      const cache = 'v='+Date.now();
       function renderDailyForecast(days) {
         const track = document.querySelector('.marquee-text-track');
         track.innerHTML = '';
@@ -504,6 +504,14 @@
     });
     </script>
     
+    if(type==='video'){
+      p.innerHTML = `<video src="{{ branch.media_prefix }}${file}?${cache}" autoplay muted></video>`;
+    }else if(type==='image'){
+      p.innerHTML = `
+        <div class="player-bg" style="background-image:url({{ branch.media_prefix }}${file}?${cache})"></div>
+        <img src="{{ branch.media_prefix }}${file}?${cache}" class="player-fg">`;
+    }
+
     <script>
       async function loadList(){
         return fetch('{{ branch.playlist_url }}?'+Date.now()).then(r=>r.json())
