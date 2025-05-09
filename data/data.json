@@ -69,7 +69,6 @@
     {
       "id": 2,
       "name": "Sucursal_002",
-      "repo_slug": "sucursal-02",
       "weather_data": {},
       "exchange_rate": {
         "buy": null,

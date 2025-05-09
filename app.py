@@ -7,7 +7,7 @@ import locale
 
 locale.setlocale(locale.LC_TIME, 'en_US.UTF-8')   # fuerza locale inglés
 
-REPO_ROOT = '/home/pi/signage'
+REPO_ROOT = '/home/rasp-prueba/signage'
 
 app = Flask(__name__)                # 1) crea la app
 
