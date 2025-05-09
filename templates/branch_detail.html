@@ -505,7 +505,9 @@
     </script>
     
     <script>
-      async function loadList(){return fetch('/static/playlist.json?'+Date.now()).then(r=>r.json())}
+      async function loadList(){
+        return fetch('{{ branch.playlist_url }}?'+Date.now()).then(r=>r.json())
+      }
       async function start(){let l=await loadList(),i=0;
        const p=document.getElementById('player');
        async function next(){
@@ -513,12 +515,12 @@
         if(type==='youtube'){
           p.innerHTML=`<iframe src="https://www.youtube.com/embed/${file}?autoplay=1&mute=1&loop=1&playlist=${file}&controls=0&modestbranding=1"></iframe>`;
         }else if(type==='video'){
-          p.innerHTML=`<video src="/admin/media/${file}" autoplay muted></video>`;
+          p.innerHTML=`<video src="{{ branch.media_prefix }}${file}" autoplay muted></video>`;
         }else{
           p.innerHTML = `
             <div class="player-bg"
-                style="background-image:url(/admin/media/${file})"></div>
-            <img src="/admin/media/${file}" class="player-fg">`;
+                style="background-image:url({{ branch.media_prefix }}${file})"></div>
+            <img src="{{ branch.media_prefix }}${file}" class="player-fg">`;
         }
         setTimeout(next,duration*1000);
        }

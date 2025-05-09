@@ -3,6 +3,7 @@
     {
       "id": 1,
       "name": "Sucursal_001",
+      "repo_slug": "sucursal-01",
       "weather_data": {
         "last_updated": "2025-05-07T15:56:28.699350",
         "current_weather": {
@@ -68,6 +69,7 @@
     {
       "id": 2,
       "name": "Sucursal_002",
+      "repo_slug": "sucursal-02",
       "weather_data": {},
       "exchange_rate": {
         "buy": null,

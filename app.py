@@ -1,17 +1,25 @@
 # app.py
 import os, json
 from datetime import datetime, timedelta
-from flask import Flask, request, jsonify, render_template, abort, url_for
+from flask import Flask, request, jsonify, render_template, abort, url_for, send_from_directory
 import requests, requests_cache, pandas as pd, pytz
 import locale
 
 locale.setlocale(locale.LC_TIME, 'en_US.UTF-8')   # fuerza locale inglés
 
+REPO_ROOT = '/home/pi/signage'
+
 app = Flask(__name__)                # 1) crea la app
 
-from admin import admin              # 2) importa el blueprint
-app.register_blueprint(admin)        # 3) lo registras
+#from admin import admin              # 2) importa el blueprint
+#app.register_blueprint(admin)        # 3) lo registras
 
+def media_path(branch):
+    """Devuelve la carpeta /static de la sucursal."""
+    return os.path.join(REPO_ROOT, branch["repo_slug"], 'static')
+
+def playlist_path(branch):
+    return os.path.join(REPO_ROOT, branch["repo_slug"], 'playlist.json')
 
 # -------------  Archivos y utilidades -----------------
 DATA_FILE  = os.path.join('data', 'data.json')
@@ -78,9 +86,14 @@ def branch_detail(branch_id):
     if not branch:
         abort(404, "Sucursal no encontrada")
 
+    # ― formatea TC para imprimir con 3-4 decimales ―
     buy, sell = branch["exchange_rate"]["buy"], branch["exchange_rate"]["sell"]
-    branch["exchange_rate"]["buy_str"]  = format_rate(buy)
-    branch["exchange_rate"]["sell_str"] = format_rate(sell)
+    branch["exchange_rate"]["buy_str"]  = format_rate(buy)  if buy  is not None else "—"
+    branch["exchange_rate"]["sell_str"] = format_rate(sell) if sell is not None else "—"
+
+    # ― añade al diccionario lo que el template necesita ―
+    branch["playlist_url"] = url_for('send_playlist', branch_id=branch_id, _external=False)
+    branch["media_prefix"] = f"/branch/{branch_id}/media/"
 
     return render_template('branch_detail.html', branch=branch)
 
@@ -209,6 +222,18 @@ def get_weather_data(branch_id):
     branch["weather_data"] = final
     save_data(data)
     return jsonify(final)
+
+# -------- playlist.json y archivos estáticos de cada sucursal ------------
+@app.route('/branch/<int:branch_id>/playlist')
+def send_playlist(branch_id):
+    branch = next(b for b in load_data()["branches"] if b["id"] == branch_id)
+    return send_from_directory(os.path.dirname(playlist_path(branch)),
+                               'playlist.json')
+
+@app.route('/branch/<int:branch_id>/media/<path:fname>')
+def send_media(branch_id, fname):
+    branch = next(b for b in load_data()["branches"] if b["id"] == branch_id)
+    return send_from_directory(media_path(branch), fname)
 
 # -------------  Run -----------------
 if __name__ == '__main__':

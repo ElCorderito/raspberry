@@ -2,7 +2,6 @@
 import os, json, uuid
 from flask import Blueprint, render_template, request, jsonify, send_from_directory
 
-MEDIA_DIR = os.path.abspath('signage_media')
 PLAYLIST  = os.path.abspath('static/playlist.json')
 
 admin = Blueprint('admin', __name__, url_prefix='/admin')
