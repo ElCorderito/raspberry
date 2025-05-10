@@ -503,8 +503,7 @@
       setInterval(checkNotification,500);
     });
     </script>
-  
-  <!-- ─────────────  VIDEO PLAYER (con auto-reload) ───────────── -->
+  <!-- ───────────── VIDEO PLAYER (con auto-reload) ───────────── -->
   <script>
   async function loadList() {
     const r = await fetch('{{ branch.playlist_url }}?t=' + Date.now());
@@ -522,10 +521,15 @@
     function show(type, file) {
       if (type === 'youtube')
         return `<iframe src="https://www.youtube.com/embed/${file}?autoplay=1&mute=1&loop=1&playlist=${file}&controls=0&modestbranding=1"></iframe>`;
+
       if (type === 'video')
         return `<video src="{{ branch.media_prefix }}${file}?${bust()}" autoplay muted></video>`;
-      return `<div class="player-bg" style="background-image:url({{ branch.media_prefix }}${file}?${bust()})"></div>
-              <img class="player-fg" src="{{ branch.media_prefix }}${file}?${bust()}">`;
+
+      /* imagen */
+      return `<div class="player-bg"
+                style="background-image:url({{ branch.media_prefix }}${file}?${bust()})"></div>
+              <img class="player-fg"
+                src="{{ branch.media_prefix }}${file}?${bust()}">`;
     }
 
     async function playNext() {
@@ -535,6 +539,7 @@
       setTimeout(playNext, duration * 1000);
     }
 
+    /* vigila cambios cada minuto */
     setInterval(async () => {
       const newList = await loadList();
       const sum = JSON.stringify(newList);
@@ -548,5 +553,7 @@
   }
   startPlayer();
   </script>
+  <!-- ────────────────────────────────────────────────────────── -->
+
 </body>
 </html>
