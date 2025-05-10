@@ -503,38 +503,50 @@
       setInterval(checkNotification,500);
     });
     </script>
-    
-    if(type==='video'){
-      p.innerHTML = `<video src="{{ branch.media_prefix }}${file}?${cache}" autoplay muted></video>`;
-    }else if(type==='image'){
-      p.innerHTML = `
-        <div class="player-bg" style="background-image:url({{ branch.media_prefix }}${file}?${cache})"></div>
-        <img src="{{ branch.media_prefix }}${file}?${cache}" class="player-fg">`;
+  
+  <!-- ─────────────  VIDEO PLAYER (con auto-reload) ───────────── -->
+  <script>
+  async function loadList() {
+    const r = await fetch('{{ branch.playlist_url }}?t=' + Date.now());
+    return r.ok ? r.json() : [];
+  }
+
+  async function startPlayer() {
+    let list     = await loadList();
+    let checksum = JSON.stringify(list);
+    let index    = 0;
+    const box    = document.getElementById('player');
+
+    function bust() { return 'v=' + Date.now(); }
+
+    function show(type, file) {
+      if (type === 'youtube')
+        return `<iframe src="https://www.youtube.com/embed/${file}?autoplay=1&mute=1&loop=1&playlist=${file}&controls=0&modestbranding=1"></iframe>`;
+      if (type === 'video')
+        return `<video src="{{ branch.media_prefix }}${file}?${bust()}" autoplay muted></video>`;
+      return `<div class="player-bg" style="background-image:url({{ branch.media_prefix }}${file}?${bust()})"></div>
+              <img class="player-fg" src="{{ branch.media_prefix }}${file}?${bust()}">`;
     }
 
-    <script>
-      async function loadList(){
-        return fetch('{{ branch.playlist_url }}?'+Date.now()).then(r=>r.json())
+    async function playNext() {
+      const { type, file, duration = 60 } = list[index];
+      index = (index + 1) % list.length;
+      box.innerHTML = show(type, file);
+      setTimeout(playNext, duration * 1000);
+    }
+
+    setInterval(async () => {
+      const newList = await loadList();
+      const sum = JSON.stringify(newList);
+      if (sum !== checksum && newList.length) {
+        list = newList; checksum = sum; index = 0;
+        console.log('🔄 playlist actualizado');
       }
-      async function start(){let l=await loadList(),i=0;
-       const p=document.getElementById('player');
-       async function next(){
-        const {type,file,duration=60}=l[i]; i=(i+1)%l.length; p.innerHTML='';
-        if(type==='youtube'){
-          p.innerHTML=`<iframe src="https://www.youtube.com/embed/${file}?autoplay=1&mute=1&loop=1&playlist=${file}&controls=0&modestbranding=1"></iframe>`;
-        }else if(type==='video'){
-          p.innerHTML=`<video src="{{ branch.media_prefix }}${file}" autoplay muted></video>`;
-        }else{
-          p.innerHTML = `
-            <div class="player-bg"
-                style="background-image:url({{ branch.media_prefix }}${file})"></div>
-            <img src="{{ branch.media_prefix }}${file}" class="player-fg">`;
-        }
-        setTimeout(next,duration*1000);
-       }
-       next();
-      }
-      start();
-    </script>      
+    }, 60_000);
+
+    playNext();
+  }
+  startPlayer();
+  </script>
 </body>
 </html>
